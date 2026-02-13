@@ -79,13 +79,15 @@ PresentationLayer ..> BusinessLogicLayer : Facade Pattern
 BusinessLogicLayer ..> PersistenceLayer : Database Operations
 ```
 
-### Explanatory Notes
+**Explanatory Notes**
 
-- The Presentation Layer depends only on the Business Logic Layer through the Facade.
+- This diagram illustrates the overall layered architecture of the HBnB Evolution application, showing how responsibilities are separated across the Presentation, Business Logic, and Persistence layers.
+- The Presentation Layer exposes API endpoints and interacts with the Business Logic Layer exclusively through a Facade, which acts as a unified entry point.
+- The Business Logic Layer contains the core application logic and coordinates operations between entities without direct knowledge of database implementation details.
+- The Persistence Layer is responsible for data storage and retrieval, providing access to the database through repository components.
+- The use of a Facade pattern reduces coupling between layers and ensures a clear and controlled flow of data throughout the system.
 
-- Business logic is isolated from database concerns.
-
-- The Persistence Layer provides database access through repositories.
+---
 
 ## 3. Business Logic Layer
 ## 3.1 Overview
@@ -253,13 +255,14 @@ Place "1" --> "*" Review : has
 Place "*" -- "*" Amenity : includes
 ```
 
-#### Explanatory Notes
+**Explanatory Notes**
 
-- Relationships enforce ownership and responsibility between entities.
-
-- UUIDs ensure unique identification.
-
-- Timestamps allow tracking entity creation and updates.
+- This diagram represents the core entities of the Business Logic layer and the relationships between them.
+- Relationships between entities define ownership and responsibility, ensuring that places and reviews are always associated with a specific user.
+- The association between places and amenities allows multiple amenities to be linked to multiple places, reflecting flexible feature assignment.
+- UUIDs are used to uniquely identify each entity, enabling reliable referencing and interaction across the system.
+- Timestamps (`created_at` and `updated_at`) record when entities are created and modified, supporting traceability and audit requirements.
+- Each entity exposes basic lifecycle operations (create, update, delete), which are managed within the Business Logic layer.
 
 ---
 
@@ -301,8 +304,14 @@ else valid data
 end
 ```
 
-#### Explanation
-This sequence shows validation of user data, email uniqueness checking, and user creation with UUID and timestamps before persistence.
+**Explanation**
+
+- This sequence diagram describes the process of user registration from the initial API request to data persistence.
+- The Presentation Layer first validates the presence of required fields before delegating the operation to the Business Logic layer.
+- The Business Logic layer checks for email uniqueness to prevent duplicate accounts.
+- If the email is available, a new user is created with a unique identifier and timestamps.
+- The Persistence Layer stores the user data and confirms successful creation.
+- Error scenarios such as invalid input data or existing email addresses are handled explicitly to ensure consistent responses.
 
 ---
 
@@ -336,8 +345,14 @@ else valid token
 end
 ```
 
-#### Explanation
-This flow highlights authentication, place data validation, conflict checking, and persistence.
+**Explanation**
+
+- This sequence diagram illustrates the creation of a place by an authenticated user.
+- The request begins with authentication validation to ensure that only authorized users can create place listings.
+- The Business Logic layer validates the place data to ensure all required attributes are provided and correctly formatted.
+- Once validation is successful, the place is created and associated with the authenticated user.
+- The Persistence Layer stores the place data and confirms successful insertion.
+- Validation and authorization errors are handled early to prevent invalid data from being persisted.
 
 ---
 
@@ -372,8 +387,14 @@ else valid token
 end
 ```
 
-#### Explanation
-This sequence ensures authentication, place existence verification, review validation, and persistence.
+**Explanation**
+
+- This sequence diagram represents the process of submitting a review for a place.
+- The system first validates the user’s authentication token to ensure the request is authorized.
+- The Business Logic layer verifies that the referenced place exists before allowing review creation.
+- Review data is validated to ensure it meets the required format and constraints.
+- Once validated, the review is created with timestamps and persisted in the database.
+- Error cases such as invalid authentication or non-existent places are handled explicitly.
 
 ---
 
@@ -403,8 +424,14 @@ else valid filters
 end
 ```
 
-#### Explanation
-This flow illustrates filter validation, database querying, and returning a list of places (which may be empty).
+**Explanation**
+
+- This sequence diagram shows how a list of places is retrieved based on search criteria.
+- The Presentation Layer forwards query parameters to the Business Logic layer for validation.
+- Invalid filters are rejected early to avoid unnecessary database queries.
+- When filters are valid, the Persistence Layer is queried to retrieve matching places.
+- The system returns a list of places, which may be empty if no results match the criteria.
+- This flow ensures efficient filtering while maintaining a clear separation of responsibilities between layers.
 
 ---
 
