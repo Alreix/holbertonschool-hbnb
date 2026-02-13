@@ -277,31 +277,53 @@ Allows a new user to register an account.
 
 ```mermaid
 sequenceDiagram
-autonumber
-participant U as User (Client)
-participant API as API (Presentation)
-participant FAC as HBnBFacade (Business)
-participant SVC as UserService (Business)
-participant REPO as UserRepository (Persistence)
-participant DB as Database (Persistence)
+   autonumber
+   participant U as User (Client)
+   participant API as API (Presentation)
+   participant FAC as HBnBFacade (Business)
+   participant SVC as UserService (Business)
+   participant REPO as UserRepository (Persistence)
+   participant DB as Database (Persistence)
 
-U->>API: POST /users
-API->>API: Validate required fields
-alt invalid data
-    API-->>U: 400 Bad Request
-else valid data
-    API->>FAC: register_user
-    FAC->>SVC: register_user
-    SVC->>REPO: find_by_email
-    REPO->>DB: SELECT user
-    alt email exists
-        API-->>U: 409 Conflict
-    else email not found
-        SVC->>REPO: create_user
-        REPO->>DB: INSERT user
-        API-->>U: 201 Created
-    end
-end
+
+   U->>API: POST /users {first_name,last_name,email,password}
+   API->>API: Validate required fields + types
+
+
+   alt invalid payload / missing fields / bad types
+       API-->>U: 400 Bad Request (validation error)
+   else payload valid
+       API->>FAC: register_user(user_dto)
+       FAC->>SVC: register_user(user_dto)
+
+
+       SVC->>REPO: find_by_email(email)
+       REPO->>DB: SELECT user WHERE email = ?
+       DB-->>REPO: user OR null
+       REPO-->>SVC: user OR null
+
+
+       alt email already exists
+           SVC-->>FAC: ConflictError
+           FAC-->>API: ConflictError
+           API-->>U: 409 Conflict (email already exists)
+       else email not found
+           SVC->>SVC: hash_password(password)
+           SVC->>SVC: user_id = UUID4()
+           SVC->>SVC: created_at = now()
+           SVC->>SVC: updated_at = now()
+           SVC->>SVC: is_admin = false (default)
+
+
+           SVC->>REPO: create_user(user_entity)
+           REPO->>DB: INSERT user(...)
+           DB-->>REPO: insert ok
+           REPO-->>SVC: created user (id, timestamps)
+           SVC-->>FAC: created user
+           FAC-->>API: created user
+           API-->>U: 201 Created {id,email,first_name,last_name,is_admin,created_at,updated_at}
+       end
+   end
 ```
 
 **Explanation**
@@ -321,28 +343,53 @@ Allows an authenticated user to create a place listing.
 
 ```mermaid
 sequenceDiagram
-autonumber
-participant U as User
-participant API as API
-participant FAC as Facade
-participant PM as PlaceModel
-participant REPO as Repo
-participant DB as DB
+    autonumber
+    participant U as User (Client)
+    participant API as API (Presentation)
+    participant FAC as HBnBFacade (Business)
+    participant PM as PlaceModel (Business)
+    participant REPO as CRUDRepo (Persistence)
+    participant DB as Database (Persistence)
 
-U->>API: POST /places
-API->>FAC: check_token
-alt invalid token
-    API-->>U: 401 Unauthorized
-else valid token
-    FAC->>PM: validate place data
-    alt invalid data
-        API-->>U: 400 Bad Request
-    else valid data
-        PM->>REPO: create place
-        REPO->>DB: INSERT place
-        API-->>U: 201 Created
+    U->>API: POST /places {title,description,price,latitude,longitude,amenity_ids}
+    API->>FAC: check_token(token)
+
+    alt token invalid
+        FAC-->>API: UnauthorizedError
+        API-->>U: 401 Unauthorized
+    else token valid
+        API->>FAC: create_place(place_dto)
+
+        FAC->>PM: verify_place_data(place_dto)
+        alt invalid place data
+            PM-->>FAC: ValidationError
+            FAC-->>API: ValidationError
+            API-->>U: 400 Bad Request
+        else place data valid
+            FAC->>PM: create_place(place_dto)
+
+            PM->>REPO: place_exists(criteria)
+            REPO->>DB: SELECT place WHERE criteria = ?
+            DB-->>REPO: place OR null
+            REPO-->>PM: place OR null
+
+            alt place already exists
+                PM-->>FAC: ConflictError
+                FAC-->>API: ConflictError
+                API-->>U: 409 Conflict (place already exists)
+            else place not found
+                PM->>PM: place_id = UUID4()
+                PM->>REPO: create(place_entity)
+                REPO->>DB: INSERT place(...)
+                DB-->>REPO: insert ok
+                REPO-->>PM: created
+                PM-->>FAC: created
+                FAC-->>API: created
+                API-->>U: 201 Created {id,title,price,latitude,longitude}
+            end
+        end
     end
-end
+
 ```
 
 **Explanation**
@@ -362,29 +409,87 @@ Allows a user to submit a review for a place.
 
 ```mermaid
 sequenceDiagram
-autonumber
-participant U as User
-participant API as API
-participant F as Facade
-participant RM as ReviewModel
-participant R as Repo
-participant DB as DB
+   autonumber
+   participant U as User
+   participant API as API
+   participant F as Facade
+   participant RM as ReviewModel
+   participant R as Repo
+   participant DB as DB
 
-U->>API: POST /reviews
-API->>F: validate_token
-alt invalid token
-    API-->>U: 401 Unauthorized
-else valid token
-    F->>RM: create_review
-    RM->>R: verify place
-    alt place not found
-        API-->>U: 404 Not Found
-    else place exists
-        RM->>R: save review
-        R->>DB: INSERT review
-        API-->>U: 201 Created
-    end
-end
+
+   U->>API: POST /reviews (place_id,rating,comment) + token
+   API->>F: validate_token(token)
+
+
+   alt invalid token
+       F-->>API: unauthorized
+       API-->>U: 401 Unauthorized
+   else token valid
+       F-->>API: user_id
+       API->>F: create_review(review_data, user_id)
+       F->>RM: create_review(review_data, user_id)
+
+
+       RM->>R: verify_place_exist(place_id)
+       R->>DB: SELECT place WHERE id=?
+       DB-->>R: found / not found
+       R-->>RM: found / not found
+
+
+       alt place doesn't exist
+           RM-->>F: not found
+           F-->>API: not found
+           API-->>U: 404 Not Found
+       else place exists
+           RM->>R: load_user(user_id)
+           R->>DB: SELECT user WHERE id=?
+           DB-->>R: found / not found
+           R-->>RM: found / not found
+
+
+           alt user not found
+               RM-->>F: not found
+               F-->>API: not found
+               API-->>U: 404 Not Found
+           else user found
+               RM->>RM: verify_data(review_data)
+               RM->>RM: check_permission(user is owner OR reserved the place)
+
+
+               alt invalid request
+                   RM-->>F: unauthorized
+                   F-->>API: unauthorized
+                   API-->>U: 401 unauthorized
+               else data valid
+                   RM->>R: review_already_exists(user_id, place_id)
+                   R->>DB: SELECT review WHERE user_id=? AND place_id=?
+                   DB-->>R: found / not found
+                   R-->>RM: found / not found
+
+
+                   alt review already exists
+                       RM-->>F: conflict
+                       F-->>API: conflict
+                       API-->>U: 409 Conflict
+                   else no existing review
+                       RM->>RM: created_at = now()
+                       RM->>RM: updated_at = now()
+
+
+                       RM->>R: save_review(review)
+                       R->>DB: INSERT review
+                       DB-->>R: created
+                       R-->>RM: created
+                       RM-->>F: created
+                       F-->>API: created
+                       API-->>U: 201 Created
+                   end
+               end
+           end
+       end
+   end
+
 ```
 
 **Explanation**
@@ -404,24 +509,32 @@ Retrieves a list of places matching search criteria.
 
 ```mermaid
 sequenceDiagram
-autonumber
-participant C as User
-participant API as API
-participant F as Facade
-participant PM as PlaceModel
-participant R as Repo
-participant DB as DB
+    autonumber
+    participant C as User (Client)
+    participant API as API (Presentation)
+    participant F as Facade (Business)
+    participant PM as PlaceModel (Business)
+    participant R as Repo (Persistence)
+    participant DB as DB (Persistence)
 
-C->>API: GET /places
-API->>F: list_places
-F->>PM: validate filters
-alt invalid filters
-    API-->>C: 400 Bad Request
-else valid filters
-    PM->>R: find_places
-    R->>DB: SELECT places
-    API-->>C: 200 OK
-end
+    C->>API: GET /places?filters
+    API->>F: list_places(filters)
+
+    F->>PM: validate_search_filters(filters)
+    alt invalid filters
+        PM-->>F: ValidationError
+        F-->>API: ValidationError
+        API-->>C: 400 Bad Request (Invalid query parameters)
+    else valid filters
+        F->>PM: list_places(filters)
+        PM->>R: find_places(filters)
+        R->>DB: SELECT places WHERE filters
+        DB-->>R: list (may be empty)
+        R-->>PM: list (may be empty)
+        PM-->>F: places list
+        F-->>API: places list
+        API-->>C: 200 OK (list of places, can be empty)
+    end
 ```
 
 **Explanation**
