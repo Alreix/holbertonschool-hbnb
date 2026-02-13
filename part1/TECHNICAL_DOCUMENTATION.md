@@ -77,7 +77,7 @@ class PersistenceLayer {
 
 PresentationLayer ..> BusinessLogicLayer : Facade Pattern
 BusinessLogicLayer ..> PersistenceLayer : Database Operations
-
+```
 
 ### Explanatory Notes
 
@@ -193,7 +193,7 @@ An amenity can be associated with multiple places.
 
 ### 3.3 Business Logic Class Diagram
 
-mermaid
+```mermaid
 Copy code
 classDiagram
 direction LR
@@ -252,6 +252,7 @@ User "1" --> "*" Place : owns
 User "1" --> "*" Review : writes
 Place "1" --> "*" Review : has
 Place "*" -- "*" Amenity : includes
+```
 
 #### Explanatory Notes
 
@@ -272,8 +273,7 @@ This section presents the sequence diagrams for the main API calls. Each diagram
 #### Purpose
 Allows a new user to register an account.
 
-mermaid
-Copy code
+```mermaid
 sequenceDiagram
 autonumber
 participant U as User (Client)
@@ -300,6 +300,8 @@ else valid data
         API-->>U: 201 Created
     end
 end
+```
+
 #### Explanation
 This sequence shows validation of user data, email uniqueness checking, and user creation with UUID and timestamps before persistence.
 
@@ -309,8 +311,7 @@ This sequence shows validation of user data, email uniqueness checking, and user
 #### Purpose
 Allows an authenticated user to create a place listing.
 
-mermaid
-Copy code
+```mermaid
 sequenceDiagram
 autonumber
 participant U as User
@@ -334,6 +335,8 @@ else valid token
         API-->>U: 201 Created
     end
 end
+```
+
 #### Explanation
 This flow highlights authentication, place data validation, conflict checking, and persistence.
 
@@ -343,8 +346,7 @@ This flow highlights authentication, place data validation, conflict checking, a
 #### Purpose
 Allows a user to submit a review for a place.
 
-mermaid
-Copy code
+```mermaid
 sequenceDiagram
 autonumber
 participant U as User
@@ -369,6 +371,8 @@ else valid token
         API-->>U: 201 Created
     end
 end
+```
+
 #### Explanation
 This sequence ensures authentication, place existence verification, review validation, and persistence.
 
@@ -378,8 +382,7 @@ This sequence ensures authentication, place existence verification, review valid
 #### Purpose
 Retrieves a list of places matching search criteria.
 
-mermaid
-Copy code
+```mermaid
 sequenceDiagram
 autonumber
 participant C as User
@@ -399,6 +402,8 @@ else valid filters
     R->>DB: SELECT places
     API-->>C: 200 OK
 end
+```
+
 #### Explanation
 This flow illustrates filter validation, database querying, and returning a list of places (which may be empty).
 
