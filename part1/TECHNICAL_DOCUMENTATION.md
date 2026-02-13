@@ -194,7 +194,6 @@ An amenity can be associated with multiple places.
 ### 3.3 Business Logic Class Diagram
 
 ```mermaid
-Copy code
 classDiagram
 direction LR
 
@@ -406,13 +405,6 @@ end
 
 #### Explanation
 This flow illustrates filter validation, database querying, and returning a list of places (which may be empty).
-
----
-
-## 5. Conclusion
-This technical document provides a complete and coherent overview of the HBnB Evolution application architecture and design. By combining UML diagrams with clear explanatory notes, it establishes a solid foundation for the implementation phases of the project.
-
-The layered architecture, use of the Facade pattern, and well-defined business entities ensure that the system is structured, maintainable, and aligned with the project requirements.
 
 ---
 
