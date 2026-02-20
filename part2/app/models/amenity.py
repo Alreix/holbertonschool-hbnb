@@ -1,4 +1,4 @@
-rom .base import BaseModel
+from .base import BaseModel
 
 
 class AmenityModel(BaseModel):
