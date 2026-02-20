@@ -2,7 +2,7 @@
 """User model with basic validation."""
 
 import re
-from base import BaseModel
+from .base import BaseModel
 
 
 class User(BaseModel):
