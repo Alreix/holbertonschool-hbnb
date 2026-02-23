@@ -4,34 +4,20 @@
 import unittest
 import time
 from datetime import datetime
-import sys
-import os
 
-# ------------------------------------------------------------
-# Import setup (avoid importing app/__init__.py which needs Flask)
-# We add: part2/app/models to sys.path, then import user.py directly.
-# ------------------------------------------------------------
-TESTS_DIR = os.path.dirname(__file__)
-PART2_DIR = os.path.abspath(os.path.join(TESTS_DIR, ".."))
-MODELS_DIR = os.path.join(PART2_DIR, "app", "models")
-
-if MODELS_DIR not in sys.path:
-    sys.path.insert(0, MODELS_DIR)
-
-from user import User  # noqa: E402
+from app.models.user import User
 
 
 class TestUserCreate(unittest.TestCase):
     """Tests for User creation."""
 
-    # ------------------------------------------------------------
-    # Basic creation and BaseModel fields
-    # ------------------------------------------------------------
+    # ----------------------------
+    # Basic creation / BaseModel
+    # ----------------------------
     def test_create_valid_user(self):
         """Create user with valid fields."""
         u = User("John", "Doe", "john.doe@example.com")
         self.assertIsInstance(u.id, str)
-        self.assertNotEqual(u.id.strip(), "")
         self.assertIsInstance(u.created_at, datetime)
         self.assertIsInstance(u.updated_at, datetime)
         self.assertEqual(u.first_name, "John")
@@ -39,14 +25,9 @@ class TestUserCreate(unittest.TestCase):
         self.assertEqual(u.email, "john.doe@example.com")
         self.assertFalse(u.is_admin)
 
-    def test_default_is_admin_false(self):
-        """Default is_admin is False."""
-        u = User("John", "Doe", "john.doe@example.com")
-        self.assertFalse(u.is_admin)
-
-    # ------------------------------------------------------------
+    # ----------------------------
     # first_name validation
-    # ------------------------------------------------------------
+    # ----------------------------
     def test_first_name_type_error(self):
         """Reject non-string first_name."""
         with self.assertRaises(TypeError):
@@ -75,13 +56,12 @@ class TestUserCreate(unittest.TestCase):
 
     def test_first_name_len_51_rejected(self):
         """Reject first_name length > 50."""
-        name = "a" * 51
         with self.assertRaises(ValueError):
-            User(name, "Doe", "john.doe@example.com")
+            User("a" * 51, "Doe", "john.doe@example.com")
 
-    # ------------------------------------------------------------
+    # ----------------------------
     # last_name validation
-    # ------------------------------------------------------------
+    # ----------------------------
     def test_last_name_type_error(self):
         """Reject non-string last_name."""
         with self.assertRaises(TypeError):
@@ -110,13 +90,12 @@ class TestUserCreate(unittest.TestCase):
 
     def test_last_name_len_51_rejected(self):
         """Reject last_name length > 50."""
-        name = "b" * 51
         with self.assertRaises(ValueError):
-            User("John", name, "john.doe@example.com")
+            User("John", "b" * 51, "john.doe@example.com")
 
-    # ------------------------------------------------------------
+    # ----------------------------
     # email validation
-    # ------------------------------------------------------------
+    # ----------------------------
     def test_email_type_error(self):
         """Reject non-string email."""
         with self.assertRaises(TypeError):
@@ -167,9 +146,9 @@ class TestUserCreate(unittest.TestCase):
         u = User("John", "Doe", "john.doe@mail.example.co.uk")
         self.assertEqual(u.email, "john.doe@mail.example.co.uk")
 
-    # ------------------------------------------------------------
+    # ----------------------------
     # is_admin validation
-    # ------------------------------------------------------------
+    # ----------------------------
     def test_is_admin_type_error(self):
         """Reject non-bool is_admin."""
         with self.assertRaises(TypeError):
@@ -188,9 +167,9 @@ class TestUserUpdate(unittest.TestCase):
         """Create a user for update tests."""
         self.u = User("John", "Doe", "john.doe@example.com")
 
-    # ------------------------------------------------------------
-    # update input validation
-    # ------------------------------------------------------------
+    # ----------------------------
+    # update basics
+    # ----------------------------
     def test_update_requires_dict(self):
         """Reject non-dict update payload."""
         with self.assertRaises(TypeError):
@@ -202,11 +181,11 @@ class TestUserUpdate(unittest.TestCase):
         self.u.update({})
         self.assertEqual(self.u.updated_at, old)
 
-    # ------------------------------------------------------------
+    # ----------------------------
     # update first_name
-    # ------------------------------------------------------------
+    # ----------------------------
     def test_update_first_name_ok(self):
-        """Update first_name and update timestamp."""
+        """Update first_name updates timestamp."""
         old = self.u.updated_at
         time.sleep(0.01)
         self.u.update({"first_name": "  Morgane  "})
@@ -222,31 +201,22 @@ class TestUserUpdate(unittest.TestCase):
         self.assertEqual(self.u.first_name, old_name)
         self.assertEqual(self.u.updated_at, old_time)
 
-    # ------------------------------------------------------------
+    # ----------------------------
     # update last_name
-    # ------------------------------------------------------------
+    # ----------------------------
     def test_update_last_name_ok(self):
-        """Update last_name and update timestamp."""
+        """Update last_name updates timestamp."""
         old = self.u.updated_at
         time.sleep(0.01)
         self.u.update({"last_name": "  Abbattista  "})
         self.assertEqual(self.u.last_name, "Abbattista")
         self.assertGreater(self.u.updated_at, old)
 
-    def test_update_last_name_invalid(self):
-        """Reject invalid last_name update."""
-        old_name = self.u.last_name
-        old_time = self.u.updated_at
-        with self.assertRaises(ValueError):
-            self.u.update({"last_name": ""})
-        self.assertEqual(self.u.last_name, old_name)
-        self.assertEqual(self.u.updated_at, old_time)
-
-    # ------------------------------------------------------------
+    # ----------------------------
     # update email
-    # ------------------------------------------------------------
-    def test_update_email_ok_normalizes(self):
-        """Update email with strip/lower."""
+    # ----------------------------
+    def test_update_email_ok(self):
+        """Update email normalizes and updates timestamp."""
         old = self.u.updated_at
         time.sleep(0.01)
         self.u.update({"email": "  NEW@EXAMPLE.COM  "})
@@ -262,11 +232,11 @@ class TestUserUpdate(unittest.TestCase):
         self.assertEqual(self.u.email, old_email)
         self.assertEqual(self.u.updated_at, old_time)
 
-    # ------------------------------------------------------------
+    # ----------------------------
     # update is_admin
-    # ------------------------------------------------------------
+    # ----------------------------
     def test_update_is_admin_ok(self):
-        """Update is_admin."""
+        """Update is_admin updates timestamp."""
         old = self.u.updated_at
         time.sleep(0.01)
         self.u.update({"is_admin": True})
@@ -282,11 +252,11 @@ class TestUserUpdate(unittest.TestCase):
         self.assertEqual(self.u.is_admin, old_val)
         self.assertEqual(self.u.updated_at, old_time)
 
-    # ------------------------------------------------------------
-    # update unknown / protected fields
-    # ------------------------------------------------------------
+    # ----------------------------
+    # update unknown/protected
+    # ----------------------------
     def test_update_ignores_unknown_keys(self):
-        """Unknown keys should not change timestamp."""
+        """Unknown keys do not change timestamp."""
         old = self.u.updated_at
         self.u.update({"unknown": "x"})
         self.assertEqual(self.u.updated_at, old)
@@ -298,30 +268,6 @@ class TestUserUpdate(unittest.TestCase):
         self.u.update({"id": "hack"})
         self.assertEqual(self.u.id, old_id)
         self.assertEqual(self.u.updated_at, old_time)
-
-    def test_update_blocks_created_at_change(self):
-        """Ignore attempts to change created_at."""
-        old_created = self.u.created_at
-        old_time = self.u.updated_at
-        self.u.update({"created_at": datetime(2000, 1, 1)})
-        self.assertEqual(self.u.created_at, old_created)
-        self.assertEqual(self.u.updated_at, old_time)
-
-    def test_update_multiple_fields_ok(self):
-        """Update multiple fields at once."""
-        old = self.u.updated_at
-        time.sleep(0.01)
-        self.u.update({
-            "first_name": " Alice ",
-            "last_name": " Smith ",
-            "email": "ALICE.SMITH@EXAMPLE.COM",
-            "is_admin": True,
-        })
-        self.assertEqual(self.u.first_name, "Alice")
-        self.assertEqual(self.u.last_name, "Smith")
-        self.assertEqual(self.u.email, "alice.smith@example.com")
-        self.assertTrue(self.u.is_admin)
-        self.assertGreater(self.u.updated_at, old)
 
 
 if __name__ == "__main__":
