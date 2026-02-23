@@ -33,9 +33,17 @@ class UserList(Resource):
         if existing_user:
             return {'error': 'Email already registered'}, 400
 
-        new_user = facade.create_user(user_data)
-        return {'id': new_user.id, 'first_name': new_user.first_name,
-                'last_name': new_user.last_name, 'email': new_user.email}, 201
+        try:
+            new_user = facade.create_user(user_data)
+        except (TypeError, ValueError) as e:
+            return {'error': str(e)}, 400
+
+        return {
+            'id': new_user.id,
+            'first_name': new_user.first_name,
+            'last_name': new_user.last_name,
+            'email': new_user.email
+        }, 201
 
     @api.response(200, "Users retrieved successfully")
     def get(self):
@@ -70,7 +78,7 @@ class UserResource(Resource):
     @api.expect(user_model, validate=True)
     @api.response(200, "User updated successfully")
     @api.response(404, "User not found")
-    @api.response(409, "Email already registered")
+    @api.response(400, "Email already registered")
     def put(self, user_id):
         """Update a user by ID"""
         user = facade.get_user(user_id)
@@ -81,9 +89,16 @@ class UserResource(Resource):
 
         existing_user = facade.get_user_by_email(user_data['email'])
         if existing_user and existing_user.id != user_id:
-            return {"error": "Email already registered"}, 409
+            return {"error": "Email already registered"}, 400
 
-        updated_user = facade.update_user(user_id, user_data)
+        try:
+            updated_user = facade.update_user(user_id, user_data)
+        except (TypeError, ValueError) as e:
+            return {'error': str(e)}, 400
+
+        if not updated_user:
+            return {"error": "User not found"}, 404
+
         return {
             "id": updated_user.id,
             "first_name": updated_user.first_name,
