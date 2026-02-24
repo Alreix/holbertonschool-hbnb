@@ -43,27 +43,28 @@ class HBnBFacade:
         return self.get_user(user_id)
 
     def create_amenity(self, amenity_data):
-        #Placeholder for logic to create an amenity
+        """Create a new amenity and return it."""
         amenity = AmenityModel(**amenity_data)
         self.amenity_repo.add(amenity)
         return amenity
 
     def get_amenity(self, amenity_id):
-        #placeholder for logic to retrieve an amenity by ID
+        """Retrieve an amenity by its ID."""
         return self.amenity_repo.get(amenity_id)
 
     def get_amenity_by_name(self, amenity_name):
-        #Placeholder for logic to retrieve an amenity by name
+        """Retrieve an amenity by its name."""
         return self.amenity_repo.get_by_attribute('name', amenity_name)
 
     def get_all_amenities(self):
-        #Placeholder for logic to retrieve all amenities
+        """Retrieve all amenities."""
         return self.amenity_repo.get_all()
 
     def update_amenity(self, amenity_id, amenity_data):
-        #Placeholder for logic to update an amenity
+        """Update an amenity and return the updated object (or None)."""
         amenity = self.amenity_repo.get(amenity_id)
         if not amenity:
             return None
         amenity.update(amenity_data)
         amenity.save()
+        return amenity
