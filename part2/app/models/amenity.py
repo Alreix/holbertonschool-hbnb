@@ -25,8 +25,8 @@ class AmenityModel(BaseModel):
         if not isinstance(data, dict):
             raise ValueError("Update data must be a dictionary")
 
-        if 'name' in data:
-            self.name = self.validate_name(data['name'])
+        if "name" in data:
+            self.name = self.validate_name(data["name"])
             super().save()
 
     def save(self):

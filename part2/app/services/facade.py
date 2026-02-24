@@ -55,7 +55,7 @@ class HBnBFacade:
 
     def get_amenity_by_name(self, amenity_name):
         """Retrieve an amenity by its name."""
-        return self.amenity_repo.get_by_attribute('name', amenity_name)
+        return self.amenity_repo.get_by_attribute("name", amenity_name)
 
     def get_all_amenities(self):
         """Retrieve all amenities."""
