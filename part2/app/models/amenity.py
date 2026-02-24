@@ -9,7 +9,7 @@ class AmenityModel(BaseModel):
         self.name = self.validate_name(name)
 
     def validate_name(self, name):
-        """Validate amenity name"""
+        """Validate amenity name."""
         if not isinstance(name, str) or not name.strip():
             raise ValueError("Amenity name must be a non-empty string")
 
@@ -21,14 +21,21 @@ class AmenityModel(BaseModel):
         return name
 
     def update(self, data):
-        """Update amenity attributes"""
+        """Update amenity attributes."""
         if not isinstance(data, dict):
             raise ValueError("Update data must be a dictionary")
 
-        if 'name' in data:
-            self.name = self.validate_name(data['name'])
-            super().save()
+        allowed = {"name"}
+        changed = False
 
-    def save(self):
-        """Save the amenity (update timestamp)"""
-        super().save()
+        for key, value in data.items():
+            if key not in allowed:
+                continue
+
+            if key == "name":
+                self.name = self.validate_name(value)
+
+            changed = True
+
+        if changed:
+            self.save()
