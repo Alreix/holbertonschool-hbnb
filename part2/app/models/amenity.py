@@ -22,11 +22,12 @@ class AmenityModel(BaseModel):
 
     def update(self, data):
         """Update amenity attributes"""
+        if not isinstance(data, dict):
+            raise ValueError("Update data must be a dictionary")
+
         if 'name' in data:
             self.name = self.validate_name(data['name'])
-
-        # Update timestamp
-        super().save()
+            super().save()
 
     def save(self):
         """Save the amenity (update timestamp)"""
