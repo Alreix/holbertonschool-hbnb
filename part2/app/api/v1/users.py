@@ -44,8 +44,8 @@ class UserList(Resource):
 
         try:
             new_user = facade.create_user(user_data)
-        except (TypeError, ValueError) as e:
-            return {'error': str(e)}, 400
+        except (TypeError, ValueError):
+            return {"error": "Invalid input data"}, 400
 
         return {
             'id': new_user.id,
