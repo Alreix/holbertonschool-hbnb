@@ -175,7 +175,7 @@ class HBnBFacade:
     # Places
     # ---------------------------------------------------------------------
 
-     def create_place(self, place_data):
+    def create_place(self, place_data):
         """Create a `Place` after validating linked entities.
 
         Applied rules:
