@@ -1,15 +1,44 @@
+"""Amenity domain model.
+
+This module defines `AmenityModel`, an entity representing a feature or
+service that can be attached to places.
+"""
+
 from .base import BaseModel
 
 
 class AmenityModel(BaseModel):
-    """Represents an amenity that can be assigned to a place."""
+    """Amenity entity that can be linked to places.
+
+    Attributes:
+        name (str): Human-readable amenity name.
+    """
 
     def __init__(self, name):
+        """Initialize an amenity instance.
+
+        Args:
+            name (str): Amenity label.
+
+        Raises:
+            ValueError: If `name` is invalid.
+        """
         super().__init__()
         self.name = self.validate_name(name)
 
+    # Validation helpers
     def validate_name(self, name):
-        """Validate amenity name."""
+        """Validate and normalize the amenity name.
+
+        Args:
+            name (str): Raw amenity name.
+
+        Returns:
+            str: Trimmed and validated amenity name.
+
+        Raises:
+            ValueError: If name is not a non-empty string or exceeds 50 chars.
+        """
         if not isinstance(name, str) or not name.strip():
             raise ValueError("Amenity name must be a non-empty string")
 
@@ -20,8 +49,16 @@ class AmenityModel(BaseModel):
 
         return name
 
+    # Mutation methods
     def update(self, data):
-        """Update amenity attributes."""
+        """Update allowed amenity attributes and persist changes.
+
+        Args:
+            data (dict): Partial payload containing updatable fields.
+
+        Raises:
+            ValueError: If `data` is not a dictionary.
+        """
         if not isinstance(data, dict):
             raise ValueError("Update data must be a dictionary")
 

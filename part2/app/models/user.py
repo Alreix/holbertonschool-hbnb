@@ -1,5 +1,7 @@
-#!/usr/bin/python3
-"""User model with basic validation."""
+"""User model definitions.
+
+This module defines the user entity and validation helpers.
+"""
 
 import re
 from .base import BaseModel
@@ -12,7 +14,18 @@ class User(BaseModel):
     EMAIL_PATTERN = r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
 
     def __init__(self, first_name, last_name, email, is_admin=False):
-        """Create a User instance with validated fields."""
+        """Initialize a user instance with validated fields.
+
+        Args:
+            first_name (str): User first name.
+            last_name (str): User last name.
+            email (str): User email address.
+            is_admin (bool): Administrative flag.
+
+        Raises:
+            TypeError: If a provided value has an invalid type.
+            ValueError: If a provided value violates validation rules.
+        """
         super().__init__()
         # Validate and normalize before storing
         self.first_name = self.validate_first_name(first_name)
@@ -21,7 +34,14 @@ class User(BaseModel):
         self.is_admin = self.validate_is_admin(is_admin)
 
     def validate_first_name(self, value):
-        """Validate first_name rules."""
+        """Validate first-name rules.
+
+        Args:
+            value (str): Candidate first name.
+
+        Returns:
+            str: Validated first name.
+        """
         if not isinstance(value, str):
             raise TypeError("first name must be a string")
         # Remove surrounding spaces
@@ -33,7 +53,14 @@ class User(BaseModel):
         return value
 
     def validate_last_name(self, value):
-        """Validate last_name rules."""
+        """Validate last-name rules.
+
+        Args:
+            value (str): Candidate last name.
+
+        Returns:
+            str: Validated last name.
+        """
         if not isinstance(value, str):
             raise TypeError("last name must be a string")
         # Remove surrounding spaces
@@ -45,7 +72,14 @@ class User(BaseModel):
         return value
 
     def validate_email(self, value):
-        """Validate email format."""
+        """Validate the email format.
+
+        Args:
+            value (str): Candidate email.
+
+        Returns:
+            str: Normalized and validated email.
+        """
         if not isinstance(value, str):
             raise TypeError("email must be a string")
         # Remove spaces and standardize case
@@ -61,13 +95,24 @@ class User(BaseModel):
         return value
 
     def validate_is_admin(self, value):
-        """Validate is_admin type."""
+        """Validate the `is_admin` value type.
+
+        Args:
+            value (bool): Candidate admin flag.
+
+        Returns:
+            bool: Validated admin flag.
+        """
         if not isinstance(value, bool):
             raise TypeError("is_admin must be a boolean")
         return value
 
     def update(self, data):
-        """Update user fields with validation."""
+        """Update user fields with validation.
+
+        Args:
+            data (dict): Fields to update.
+        """
         if not isinstance(data, dict):
             raise TypeError("data must be a dict")
 

@@ -1,4 +1,7 @@
-"""Review model with validation and relations."""
+"""Review model definitions.
+
+This module provides the review entity and its validation helpers.
+"""
 
 
 from .base import BaseModel
@@ -10,7 +13,7 @@ class Review(BaseModel):
     """Represent a review written by a user for a place."""
 
     def __init__(self, text, rating, place, user):
-        """Create a Review instance with validated fields."""
+        """Initialize a review instance with validated fields."""
         super().__init__()
         self.text = self.validate_text(text)
         self.rating = self.validate_rating(rating)
@@ -19,7 +22,7 @@ class Review(BaseModel):
 
     # Validation helpers
     def validate_text(self, value):
-        """Validate review text."""
+        """Validate the review text value."""
         if not isinstance(value, str):
             raise TypeError("text must be a string")
         value = value.strip()
@@ -28,7 +31,7 @@ class Review(BaseModel):
         return value
 
     def validate_rating(self, value):
-        """Validate review rating."""
+        """Validate the review rating value."""
         if not isinstance(value, int):
             raise TypeError("rating must be an integer")
         if value < 1 or value > 5:
@@ -36,7 +39,7 @@ class Review(BaseModel):
         return value
 
     def validate_place(self, value):
-        """Validate place instance."""
+        """Validate the associated place instance."""
         if value is None:
             raise ValueError("place is required")
         if not isinstance(value, Place):
@@ -46,7 +49,7 @@ class Review(BaseModel):
         return value
 
     def validate_user(self, value):
-        """Validate user instance."""
+        """Validate the associated user instance."""
         if value is None:
             raise ValueError("user is required")
         if not isinstance(value, User):
@@ -57,7 +60,11 @@ class Review(BaseModel):
 
     # Update with validation
     def update(self, data):
-        """Update review fields with validation."""
+        """Update review fields with validation.
+
+        Args:
+            data (dict): Fields to update.
+        """
         if not isinstance(data, dict):
             raise TypeError("data must be a dict")
 

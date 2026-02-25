@@ -1,3 +1,9 @@
+"""Review API endpoints.
+
+This module defines REST resources to create, list, retrieve, update,
+and delete reviews.
+"""
+
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
 
@@ -14,12 +20,19 @@ review_model = api.model("Review", {
 
 @api.route('/')
 class ReviewList(Resource):
+    """Resource for review collection operations."""
+
     @api.expect(review_model)
     @api.response(201, "Review successfully created")
     @api.response(400, "Invalid input data")
     @api.response(404, "Not found")
     def post(self):
-        """Register a new review"""
+        """Create a new review.
+
+        Returns:
+            tuple[dict, int]: Created review payload and HTTP 201 status.
+            tuple[dict, int]: Error payload and HTTP 400 status.
+        """
         review_data = api.payload
         existing_place = facade.get_place(review_data["place_id"])
         existing_user = facade.get_user(review_data["user_id"])
@@ -44,7 +57,11 @@ class ReviewList(Resource):
 
     @api.response(200, "List of reviews retrieved successfully")
     def get(self):
-        """Retrieve a list of all reviews"""
+        """Retrieve all reviews.
+
+        Returns:
+            tuple[list[dict], int]: List of reviews and HTTP 200 status.
+        """
         reviews = facade.get_all_reviews()
         return [
             {
@@ -58,10 +75,20 @@ class ReviewList(Resource):
 
 @api.route('/<review_id>')
 class ReviewResource(Resource):
+    """Resource for single review operations."""
+
     @api.response(200, "Review details retrieved successfully")
     @api.response(404, "Review not found")
     def get(self, review_id):
-        """Get review details by ID"""
+        """Retrieve review details by ID.
+
+        Args:
+            review_id (str): Identifier of the review.
+
+        Returns:
+            tuple[dict, int]: Review payload and HTTP 200 status.
+            tuple[dict, int]: Error payload and HTTP 404 status.
+        """
         existing_review = facade.get_review(review_id)
 
         if not existing_review:
@@ -80,7 +107,15 @@ class ReviewResource(Resource):
     @api.response(404, "Review not found")
     @api.response(400, "Invalid input data")
     def put(self, review_id):
-        """Update a review's information"""
+        """Update review information by ID.
+
+        Args:
+            review_id (str): Identifier of the review.
+
+        Returns:
+            tuple[dict, int]: Success payload and HTTP 200 status.
+            tuple[dict, int]: Error payload and HTTP 404 status.
+        """
         update = facade.update_review(review_id, api.payload)
         if not update:
             return {"error": "Review not found"}, 404
@@ -90,7 +125,15 @@ class ReviewResource(Resource):
     @api.response(200, "Review deleted successfully")
     @api.response(404, "Review not found")
     def delete(self, review_id):
-        """Delete a review"""
+        """Delete a review by ID.
+
+        Args:
+            review_id (str): Identifier of the review.
+
+        Returns:
+            tuple[dict, int]: Success payload and HTTP 200 status.
+            tuple[dict, int]: Error payload and HTTP 404 status.
+        """
         deleted = facade.delete_review(review_id)
         if not deleted:
             return {"error": "Review not found"}, 404

@@ -1,3 +1,8 @@
+"""Place API endpoints.
+
+This module defines REST resources used to create, list, retrieve, and update
+places, as well as retrieve reviews for a specific place.
+"""
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
 
@@ -38,11 +43,16 @@ place_update_model = api.model('PlaceUpdate', {
 
 @api.route('/')
 class PlaceList(Resource):
+    """Resource for place collection operations."""
     @api.expect(place_model, validate=True)
     @api.response(201, 'Place successfully created')
     @api.response(400, 'Invalid input data')
     def post(self):
-        """Register a new place"""
+        """Create a new place.
+
+        Returns:
+            tuple[dict, int]: Created place payload and HTTP 201 status.
+        """
         try:
             place = facade.create_place(api.payload)
             return place, 201
@@ -51,16 +61,29 @@ class PlaceList(Resource):
 
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
-        """Retrieve a list of all places"""
+        """Retrieve all places.
+
+        Returns:
+            tuple[list[dict], int]: List of places and HTTP 200 status.
+        """
         return facade.get_all_places(), 200
 
 
 @api.route('/<place_id>')
 class PlaceResource(Resource):
+    """Resource for single-place operations."""
     @api.response(200, 'Place details retrieved successfully')
     @api.response(404, 'Place not found')
     def get(self, place_id):
-        """Get place details by ID"""
+        """Retrieve place details by ID.
+
+        Args:
+            place_id (str): Identifier of the place.
+
+        Returns:
+            tuple[dict, int]: Place details and HTTP 200 status.
+            tuple[dict, int]: Error payload and HTTP 404 status if not found.
+        """
         place = facade.get_place(place_id)
         if place is None:
             return {"error": "Place not found"}, 404
@@ -71,9 +94,17 @@ class PlaceResource(Resource):
     @api.response(404, 'Place not found')
     @api.response(400, 'Invalid input data')
     def put(self, place_id):
-        """Update a place's information"""
+        """Update a place by ID.
+
+        Args:
+            place_id (str): Identifier of the place to update.
+
+        Returns:
+            tuple[dict, int]: Success payload and HTTP 200 status.
+            tuple[dict, int]: Error payload and HTTP 404/400 status.
+        """
         try:
-            ok = facade.update_place(place_id, api.payload)   # ✅ fix
+            ok = facade.update_place(place_id, api.payload)
             if not ok:
                 return {"error": "Place not found"}, 404
             return {"message": "Place updated successfully"}, 200
@@ -83,10 +114,19 @@ class PlaceResource(Resource):
 
 @api.route('/<place_id>/reviews')
 class PlaceReviewList(Resource):
+    """Resource for place review listing."""
     @api.response(200, 'List of reviews for the place retrieved successfully')
     @api.response(404, 'Place not found')
     def get(self, place_id):
-        """Get all reviews for a specific place"""
+        """Retrieve all reviews for a place.
+
+        Args:
+            place_id (str): Identifier of the place.
+
+        Returns:
+            tuple[list[dict], int]: List of reviews and HTTP 200 status.
+            tuple[dict, int]: Error payload and HTTP 404 status if place is missing.
+        """
         reviews = facade.get_reviews_by_place(place_id)
         if reviews is None:
             return {"error": "Place not found"}, 404

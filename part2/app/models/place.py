@@ -1,15 +1,13 @@
-#!/usr/bin/python3
 """Place model representing a property listed in the HBnB application."""
 
 from .base import BaseModel
 
 
 class Place(BaseModel):
-    """
-    Represents a place (property) that can be listed by a user.
+    """Represent a place listed by a user.
 
-    A Place is owned by a user and can contain amenities and reviews.
-    It inherits from BaseModel which provides:
+    A place is owned by a user and can contain amenities and reviews.
+    It inherits from `BaseModel`, which provides:
         - id (UUID as string)
         - created_at timestamp
         - updated_at timestamp
@@ -20,13 +18,12 @@ class Place(BaseModel):
         price (float): Price per stay.
         latitude (float): Geographic latitude (-90 to 90).
         longitude (float): Geographic longitude (-180 to 180).
-        owner (str | User): Owner identifier or User object.
+        owner (str | User): Owner identifier or user object.
         reviews (list): List of associated reviews.
         amenities (list): List of associated amenities.
     """
     def __init__(self, title, description, price, latitude, longitude, owner):
-        """
-        Initialize a new Place instance with validated attributes.
+        """Initialize a place instance with validated attributes.
 
         Args:
             title (str): Title of the place.
@@ -52,7 +49,14 @@ class Place(BaseModel):
         self.amenities = []
 
     def validate_title(self, value):
-        """Validate the place title."""
+        """Validate the place title value.
+
+        Args:
+            value (str): Candidate title.
+
+        Returns:
+            str: Validated title.
+        """
         if not isinstance(value, str):
             raise TypeError("title must be a string")
         value = value.strip()
@@ -63,7 +67,14 @@ class Place(BaseModel):
         return value
 
     def validate_description(self, value):
-        """Validate the description field."""
+        """Validate the place description value.
+
+        Args:
+            value (str | None): Candidate description.
+
+        Returns:
+            str: Validated description.
+        """
         if value is None:
             return ""
         if not isinstance(value, str):
@@ -74,7 +85,14 @@ class Place(BaseModel):
         return value
 
     def validate_price(self, value):
-        """Validate price value."""
+        """Validate the place price value.
+
+        Args:
+            value (int | float): Candidate price.
+
+        Returns:
+            float: Validated price.
+        """
         if not isinstance(value, (float, int)):
             raise TypeError("price must be a number")
         value = float(value)
@@ -83,7 +101,14 @@ class Place(BaseModel):
         return value
 
     def validate_latitude(self, value):
-        """Validate latitude range (-90 to 90)."""
+        """Validate the latitude range (-90 to 90).
+
+        Args:
+            value (int | float): Candidate latitude.
+
+        Returns:
+            float: Validated latitude.
+        """
         if not isinstance(value, (float, int)):
             raise TypeError("latitude must be a number")
         value = float(value)
@@ -92,7 +117,14 @@ class Place(BaseModel):
         return value
 
     def validate_longitude(self, value):
-        """Validate longitude range (-180 to 180)."""
+        """Validate the longitude range (-180 to 180).
+
+        Args:
+            value (int | float): Candidate longitude.
+
+        Returns:
+            float: Validated longitude.
+        """
         if not isinstance(value, (float, int)):
             raise TypeError("longitude must be a number")
         value = float(value)
@@ -101,12 +133,17 @@ class Place(BaseModel):
         return value
 
     def  validate_owner(self, value):
-        """
-        Validate owner reference.
+        """Validate the owner reference.
 
         Owner can be:
             - a user ID (string)
             - a User object (must have an 'id' attribute)
+
+        Args:
+            value (str | User): Candidate owner reference.
+
+        Returns:
+            str | User: Validated owner reference.
         """
         if value is None:
             raise ValueError("owner is required")
@@ -123,8 +160,7 @@ class Place(BaseModel):
         raise TypeError("owner must be a user id (str) or a User object")
 
     def update(self, data):
-        """
-        Update place attributes using validated values.
+        """Update place attributes using validated values.
 
         Args:
             data (dict): Dictionary containing fields to update.
@@ -158,11 +194,19 @@ class Place(BaseModel):
             changed = True
 
     def add_review(self, review):
-        """Attach a review to this place."""
+        """Attach a review to this place and persist the change.
+
+        Args:
+            review: Review object to attach.
+        """
         self.reviews.append(review)
         self.save()
 
     def add_amenity(self, amenity):
-        """Attach an amenity to this place."""
+        """Attach an amenity to this place and persist the change.
+
+        Args:
+            amenity: Amenity object to attach.
+        """
         self.amenities.append(amenity)
         self.save()

@@ -1,4 +1,8 @@
-"""User endpoints for the HBnB API."""
+"""User API endpoints.
+
+This module defines REST resources used to create, list, retrieve,
+and update users.
+"""
 
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
@@ -18,17 +22,22 @@ user_model = api.model('User', {
 
 @api.route('/')
 class UserList(Resource):
-    """Collection endpoints for users."""
+    """Resource for user collection operations."""
 
     @api.expect(user_model, validate=True)
     @api.response(201, 'User successfully created')
     @api.response(400, 'Email already registered')
     @api.response(400, 'Invalid input data')
     def post(self):
-        """Register a new user"""
+        """Create a new user.
+
+        Returns:
+            tuple[dict, int]: Created user payload and HTTP 201 status.
+            tuple[dict, int]: Error payload and HTTP 400 status.
+        """
         user_data = api.payload
 
-        # Simulate email uniqueness check (to be replaced by real validation)
+        # Simulate email uniqueness check
         existing_user = facade.get_user_by_email(user_data['email'])
         if existing_user:
             return {'error': 'Email already registered'}, 400
@@ -47,7 +56,11 @@ class UserList(Resource):
 
     @api.response(200, "Users retrieved successfully")
     def get(self):
-        """List all users"""
+        """Retrieve all users.
+
+        Returns:
+            tuple[list[dict], int]: List of users and HTTP 200 status.
+        """
         users = facade.get_all_users()
         return [
             {
@@ -62,12 +75,20 @@ class UserList(Resource):
 
 @api.route('/<user_id>')
 class UserResource(Resource):
-    """Single-user endpoints."""
+    """Resource for single-user operations."""
 
     @api.response(200, 'User details retrieved successfully')
     @api.response(404, 'User not found')
     def get(self, user_id):
-        """Get user details by ID"""
+        """Retrieve user details by ID.
+
+        Args:
+            user_id (str): Identifier of the user.
+
+        Returns:
+            tuple[dict, int]: User payload and HTTP 200 status.
+            tuple[dict, int]: Error payload and HTTP 404 status.
+        """
         user = facade.get_user(user_id)
         if not user:
             return {'error': 'User not found'}, 404
@@ -80,7 +101,15 @@ class UserResource(Resource):
     @api.response(404, "User not found")
     @api.response(400, "Email already registered")
     def put(self, user_id):
-        """Update a user by ID"""
+        """Update a user by ID.
+
+        Args:
+            user_id (str): Identifier of the user.
+
+        Returns:
+            tuple[dict, int]: Updated user payload and HTTP 200 status.
+            tuple[dict, int]: Error payload and HTTP 404/400 status.
+        """
         user = facade.get_user(user_id)
         if not user:
             return {"error": "User not found"}, 404
