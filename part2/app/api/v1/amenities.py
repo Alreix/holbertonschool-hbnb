@@ -23,7 +23,13 @@ class AmenityList(Resource):
             return {"error": "Invalid input data"}, 400
 
         amenity = facade.create_amenity(data)
-        return amenity, 201
+
+        # Return a serialisable JSON dictionary
+        response = {
+            "id": amenity.id,
+            "name": amenity.name
+        }
+        return response, 201
 
     @api.response(200, 'List of amenities retrieved successfully')
     def get(self):
@@ -40,7 +46,7 @@ class AmenityResource(Resource):
     @api.response(404, 'Amenity not found')
     def get(self, amenity_id):
         """Get amenity by its ID."""
-        amenity = facade.get_amenity_by_id(amenity_id)
+        amenity = facade.get_amenity(amenity_id)
 
         if not amenity:
             return {"error": "Amenity not found"}, 404
@@ -63,4 +69,5 @@ class AmenityResource(Resource):
         if not updated:
             return {"error": "Amenity not found"}, 404
 
-        return updated, 200
+        # Return only a success message
+        return {"message": "Amenity updated successfully"}, 200
