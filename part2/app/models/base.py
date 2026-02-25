@@ -1,11 +1,14 @@
-#!/usr/bin/python3
+"""Base model providing id and timestamps."""
 
 import uuid
 from datetime import datetime
 
 
 class BaseModel:
+    """Base entity with UUID and timestamps."""
+
     def __init__(self):
+        """Initialize id, created_at, and updated_at."""
         self.id = str(uuid.uuid4())
         self.created_at = datetime.now()
         self.updated_at = datetime.now()
