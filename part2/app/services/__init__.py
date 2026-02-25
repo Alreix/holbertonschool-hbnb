@@ -1,3 +1,5 @@
-from app.services.facade import HBnBFacade
+"""Services package: expose a shared facade instance."""
 
-facade = HBnBFacade()from .facade import HBnBFacade
+from .facade import HBnBFacade
+
+facade = HBnBFacade()
