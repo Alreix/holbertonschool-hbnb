@@ -1,3 +1,5 @@
+"""Amenity endpoints for HBnB API (create, list, retrieve, update)."""
+
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
 
@@ -33,9 +35,9 @@ class AmenityList(Resource):
 
     @api.response(200, "List of amenities retrieved successfully")
     def get(self):
-        """Return all amenities."""
+        """Return a list of all amenities."""
         amenities = facade.get_all_amenities()
-        return amenities, 200
+        return [{"id": a.id, "name": a.name} for a in amenities], 200
 
 
 @api.route('/<amenity_id>')
@@ -51,7 +53,7 @@ class AmenityResource(Resource):
         if not amenity:
             return {"error": "Amenity not found"}, 404
 
-        return amenity, 200
+        return {"id": amenity.id, "name": amenity.name}, 200
 
     @api.expect(amenity_model)
     @api.response(200, "Amenity updated successfully")
@@ -68,6 +70,4 @@ class AmenityResource(Resource):
 
         if not updated:
             return {"error": "Amenity not found"}, 404
-
-        # Return only a success message
         return {"message": "Amenity updated successfully"}, 200
