@@ -11,6 +11,7 @@ review_model = api.model("Review", {
     "place_id": fields.String(required=True, description="ID of the place")
 })
 
+
 @api.route('/')
 class ReviewList(Resource):
     @api.expect(review_model)
@@ -54,6 +55,7 @@ class ReviewList(Resource):
             for r in reviews
         ], 200
 
+
 @api.route('/<review_id>')
 class ReviewResource(Resource):
     @api.response(200, "Review details retrieved successfully")
@@ -73,7 +75,6 @@ class ReviewResource(Resource):
             "place_id": existing_review.place.id
         }, 200
 
-
     @api.expect(review_model)
     @api.response(200, "Review updated successfully")
     @api.response(404, "Review not found")
@@ -85,7 +86,6 @@ class ReviewResource(Resource):
             return {"error": "Review not found"}, 404
 
         return {"message": "Review updated successfully"}, 200
-
 
     @api.response(200, "Review deleted successfully")
     @api.response(404, "Review not found")
