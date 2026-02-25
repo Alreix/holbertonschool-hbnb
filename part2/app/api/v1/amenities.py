@@ -21,17 +21,12 @@ class AmenityList(Resource):
         """Create a new amenity."""
         data = api.payload
 
-        if not data or "name" not in data:
+        try:
+            amenity = facade.create_amenity(data)
+        except (TypeError, ValueError):
             return {"error": "Invalid input data"}, 400
 
-        amenity = facade.create_amenity(data)
-
-        # Return a serialisable JSON dictionary
-        response = {
-            "id": amenity.id,
-            "name": amenity.name
-        }
-        return response, 201
+        return {"id": amenity.id, "name": amenity.name}, 201
 
     @api.response(200, "List of amenities retrieved successfully")
     def get(self):
