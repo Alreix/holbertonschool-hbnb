@@ -397,6 +397,12 @@ class HBnBFacade:
         if place is None:
             raise ValueError("Place not found")
 
+        existing_review_ids = getattr(place, "reviews", []) or []
+        for rid in existing_review_ids:
+            existing = self.review_repo.get(rid)
+            if existing and getattr(existing, "user", None) and getattr(existing.user, "id", None) == user.id:
+                raise ValueError("User has already reviewed this place")
+
         review = Review(
             text=review_data["text"],
             rating=review_data["rating"],

@@ -44,8 +44,8 @@ class ReviewList(Resource):
 
         try:
             new_review = facade.create_review(review_data)
-        except (TypeError, ValueError) as e:
-            return {"error": str(e)}, 400
+        except (TypeError, ValueError):
+            return {"error": "Invalid input data"}, 400
 
         return {
             "id": new_review.id,
@@ -116,8 +116,16 @@ class ReviewResource(Resource):
             tuple[dict, int]: Success payload and HTTP 200 status.
             tuple[dict, int]: Error payload and HTTP 404 status.
         """
-        update = facade.update_review(review_id, api.payload)
-        if not update:
+        review_data = api.payload
+
+        if not review_data or "text" not in review_data or review_data["text"] == "":
+            return {"error": "Invalid input data"}, 400
+        try:
+            updated = facade.update_review(review_id, review_data)
+        except (TypeError, ValueError):
+            return {"error": "Invalid input data"}, 400
+
+        if not updated:
             return {"error": "Review not found"}, 404
 
         return {"message": "Review updated successfully"}, 200
