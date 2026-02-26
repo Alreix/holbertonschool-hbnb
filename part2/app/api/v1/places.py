@@ -53,11 +53,23 @@ class PlaceList(Resource):
         Returns:
             tuple[dict, int]: Created place payload and HTTP 201 status.
         """
+        data_place = api.payload
+
         try:
-            place = facade.create_place(api.payload)
-            return place, 201
+            new_place = facade.create_place(data_place)
+
         except (TypeError, ValueError):
             return {"error": "Invalid input data"}, 400
+        
+        return {
+            'title': new_place.title,
+            'description': new_place.description,
+            'price': new_place.price,
+            'latitude': new_place.latitude,
+            'longitude': new_place.longitude,
+            'owner_id': new_place.owner,
+            'amenities': new_place.amenities,
+        }, 201
 
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
@@ -66,7 +78,19 @@ class PlaceList(Resource):
         Returns:
             tuple[list[dict], int]: List of places and HTTP 200 status.
         """
-        return facade.get_all_places(), 200
+        all_places = facade.get_all_places()
+        return [
+            {
+            'title': p.title,
+            'description': p.description,
+            'price': p.price,
+            'latitude': p.latitude,
+            'longitude': p.longitude,
+            'owner_id': p.owner,
+            'amenities': p.amenities,
+            }
+            for p in all_places
+        ], 200
 
 
 @api.route('/<place_id>')
@@ -87,7 +111,17 @@ class PlaceResource(Resource):
         place = facade.get_place(place_id)
         if place is None:
             return {"error": "Place not found"}, 404
-        return place, 200
+        return [
+            {
+            'title': place.title,
+            'description': place.description,
+            'price': place.price,
+            'latitude': place.latitude,
+            'longitude': place.longitude,
+            'owner_id': place.owner,
+            'amenities': place.amenities,
+            }
+        ], 200
 
     @api.expect(place_update_model, validate=True)
     @api.response(200, 'Place updated successfully')
@@ -130,4 +164,12 @@ class PlaceReviewList(Resource):
         reviews = facade.get_reviews_by_place(place_id)
         if reviews is None:
             return {"error": "Place not found"}, 404
-        return reviews, 200
+        return [
+            {
+            "id": reviews.id,
+            "text": reviews.text,
+            "rating": reviews.rating,
+            "user_id": reviews.user.id,
+            "place_id": reviews.place.id
+            }
+        ], 200
