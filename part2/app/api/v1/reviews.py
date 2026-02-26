@@ -118,8 +118,15 @@ class ReviewResource(Resource):
         """
         review_data = api.payload
 
-        if not review_data or "text" not in review_data or review_data["text"] == "":
+        if not review_data:
             return {"error": "Invalid input data"}, 400
+
+        if "text" not in review_data and "rating" not in review_data:
+            return {"error": "Invalid input data"}, 400
+
+        if "text" in review_data and (not isinstance(review_data["text"], str) or not review_data["text"].strip()):
+            return {"error": "Invalid input data"}, 400
+
         try:
             updated = facade.update_review(review_id, review_data)
         except (TypeError, ValueError):
