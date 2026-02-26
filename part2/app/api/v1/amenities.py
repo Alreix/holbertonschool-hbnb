@@ -61,7 +61,10 @@ class AmenityResource(Resource):
         if not data or "name" not in data or data["name"] == "":
             return {"error": "Invalid input data"}, 400
 
-        updated = facade.update_amenity(amenity_id, data)
+        try:
+            updated = facade.update_amenity(amenity_id, data)
+        except (TypeError, ValueError):
+            return {"error": "Invalid input data"}, 400
 
         if not updated:
             return {"error": "Amenity not found"}, 404

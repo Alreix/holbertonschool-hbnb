@@ -116,7 +116,11 @@ class ReviewResource(Resource):
             tuple[dict, int]: Success payload and HTTP 200 status.
             tuple[dict, int]: Error payload and HTTP 404 status.
         """
-        update = facade.update_review(review_id, api.payload)
+        try:
+            update = facade.update_review(review_id, api.payload)
+        except (TypeError, ValueError) as e:
+            return {"error": str(e)}, 400
+
         if not update:
             return {"error": "Review not found"}, 404
 
