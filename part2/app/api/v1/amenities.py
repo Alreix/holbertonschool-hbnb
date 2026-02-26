@@ -50,23 +50,23 @@ class AmenityResource(Resource):
 
         return {"id": amenity.id, "name": amenity.name}, 200
 
-@api.expect(amenity_model)
-@api.response(200, "Amenity updated successfully")
-@api.response(404, "Amenity not found")
-@api.response(400, "Invalid input data")
-def put(self, amenity_id):
-    """Update an amenity by ID."""
-    data = api.payload
+    @api.expect(amenity_model)
+    @api.response(200, "Amenity updated successfully")
+    @api.response(404, "Amenity not found")
+    @api.response(400, "Invalid input data")
+    def put(self, amenity_id):
+        """Update an amenity by ID."""
+        data = api.payload
 
-    if not data or "name" not in data or data["name"] == "":
-        return {"error": "Invalid input data"}, 400
+        if not data or "name" not in data or data["name"] == "":
+            return {"error": "Invalid input data"}, 400
 
-    try:
-        updated = facade.update_amenity(amenity_id, data)
-    except (TypeError, ValueError) as e:
-        # Attrape ValueError de validate_name
-        return {"error": str(e)}, 400
+        try:
+            updated = facade.update_amenity(amenity_id, data)
+        except (TypeError, ValueError) as e:
+            # Attrape ValueError de validate_name
+            return {"error": str(e)}, 400
 
-    if not updated:
-        return {"error": "Amenity not found"}, 404
-    return {"message": "Amenity updated successfully"}, 200
+        if not updated:
+            return {"error": "Amenity not found"}, 404
+        return {"message": "Amenity updated successfully"}, 200
