@@ -64,7 +64,7 @@ class AmenityResource(Resource):
         try:
             updated = facade.update_amenity(amenity_id, data)
         except (TypeError, ValueError):
-            return {"error": "Invalid input daya"}, 400
+            return {"error": "Invalid input data"}, 400
 
         if not updated:
             return {"error": "Amenity not found"}, 404
