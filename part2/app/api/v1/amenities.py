@@ -50,7 +50,7 @@ class AmenityResource(Resource):
 
         return {"id": amenity.id, "name": amenity.name}, 200
 
-    @api.expect(amenity_model)
+@api.expect(amenity_model)
 @api.response(200, "Amenity updated successfully")
 @api.response(404, "Amenity not found")
 @api.response(400, "Invalid input data")
