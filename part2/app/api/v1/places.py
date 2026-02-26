@@ -56,8 +56,8 @@ class PlaceList(Resource):
         try:
             place = facade.create_place(api.payload)
             return place, 201
-        except (TypeError, ValueError) as e:
-            return {"error": str(e)}, 400
+        except (TypeError, ValueError):
+            return {"error": "Invalid input data"}, 400
 
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
@@ -108,8 +108,8 @@ class PlaceResource(Resource):
             if not ok:
                 return {"error": "Place not found"}, 404
             return {"message": "Place updated successfully"}, 200
-        except (TypeError, ValueError) as e:
-            return {"error": str(e)}, 400
+        except (TypeError, ValueError):
+            return {"error": "Invalid input data"}, 400
 
 
 @api.route('/<place_id>/reviews')
