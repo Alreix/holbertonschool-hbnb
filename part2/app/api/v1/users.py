@@ -122,8 +122,8 @@ class UserResource(Resource):
 
         try:
             updated_user = facade.update_user(user_id, user_data)
-        except (TypeError, ValueError) as e:
-            return {'error': str(e)}, 400
+        except (TypeError, ValueError):
+            return {"error": "Invalid input data"}, 400
 
         if not updated_user:
             return {"error": "User not found"}, 404
