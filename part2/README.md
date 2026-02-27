@@ -271,6 +271,14 @@ curl -X GET "http://127.0.0.1:5000/api/v1/places/<PLACE_ID>/reviews"
 
 ---
 
+## Test Endpoints
+
+Comprehensive tests have been performed on all API endpoints using `cURL` to validate the application's behavior in various scenarios (creation, retrieval, update, deletion, error handling).
+
+The detailed report of endpoint tests and unittest documentation is available in the attached documentation: [Endpoint Test Documentation](tests/endpoint_test_documentation.md)
+
+---
+
 ## Tests and Validation
 
 ### Automated tests
