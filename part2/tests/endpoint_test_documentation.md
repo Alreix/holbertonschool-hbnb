@@ -146,7 +146,6 @@ Both **successful scenarios** and **error cases** were executed.
 | PUT    | `/amenities/<id>`      | Invalid update data              | 400 Bad Request | PASS   |
 | PUT    | `/amenities/<invalid>` | Update non-existent amenity      | 404 Not Found   | PASS   |
 
-
 ### Place Endpoints
 
 | Method | Endpoint            | Scenario                         | Expected        | Result |
@@ -297,5 +296,3 @@ The HBnB API is now **stable, validated, and ready for further development**.
 **FUNCTIONAL · TESTED · VALIDATED · COMPLIANT**
 
 ---
-
-
