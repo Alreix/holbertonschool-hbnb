@@ -284,7 +284,7 @@ curl -X POST http://127.0.0.1:5000/api/v1/reviews/ \
 }
 ```
 
-In other words: **We can created 2 reviews on 1 place**.
+In other words: **We could create 2 reviews on 1 place**.
 
 **Cause:**  
 The review creation logic did not enforce uniqueness of the `(user_id, place_id)` pair. No check existed in the facade or repository.
