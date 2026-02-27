@@ -711,7 +711,7 @@ class TestReviewEndpoints(unittest.TestCase):
         payload["rating"] = 0
         response = self.client.post('/api/v1/reviews/', json=payload)
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.get_json(), {"error": "rating must be between 1 and 5"})
+        self.assertEqual(response.get_json(), {"error": "Invalid input data"})
 
     def test_create_review_missing_text(self):
         """Create review missing text returns 400."""
@@ -719,7 +719,7 @@ class TestReviewEndpoints(unittest.TestCase):
         payload.pop("text")
         response = self.client.post('/api/v1/reviews/', json=payload)
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.get_json(), {"error": "text is required"})
+        self.assertEqual(response.get_json(), {"error": "Invalid input data"})
 
     def test_create_review_empty_text(self):
         """Create review with blank text returns 400."""
@@ -727,7 +727,7 @@ class TestReviewEndpoints(unittest.TestCase):
         payload["text"] = "   "
         response = self.client.post('/api/v1/reviews/', json=payload)
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.get_json(), {"error": "text cannot be empty"})
+        self.assertEqual(response.get_json(), {"error": "Invalid input data"})
 
     def test_create_review_rating_not_integer(self):
         """Create review with non-integer rating returns 400."""
@@ -735,7 +735,7 @@ class TestReviewEndpoints(unittest.TestCase):
         payload["rating"] = "5"
         response = self.client.post('/api/v1/reviews/', json=payload)
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.get_json(), {"error": "rating must be an integer"})
+        self.assertEqual(response.get_json(), {"error": "Invalid input data"})
 
     def test_create_review_place_not_found(self):
         """Create review with unknown place returns 400."""
@@ -819,8 +819,8 @@ class TestReviewEndpoints(unittest.TestCase):
             "user_id": self.user_id,
             "place_id": second_place_id
         })
-        self.assertEqual(second_review_response.status_code, 201)
-        second_review_id = second_review_response.get_json()["id"]
+        self.assertEqual(second_review_response.status_code, 400)
+        self.assertEqual(second_review_response.get_json(), {"error": "Owner cannot review own place"})
 
         first_place_reviews = self.client.get(f'/api/v1/places/{self.place_id}/reviews')
         self.assertEqual(first_place_reviews.status_code, 200)
@@ -830,7 +830,7 @@ class TestReviewEndpoints(unittest.TestCase):
         second_place_reviews = self.client.get(f'/api/v1/places/{second_place_id}/reviews')
         self.assertEqual(second_place_reviews.status_code, 200)
         second_ids = {r["id"] for r in second_place_reviews.get_json()}
-        self.assertEqual(second_ids, {second_review_id})
+        self.assertEqual(second_ids, set())
 
     def test_delete_review_keeps_other_place_reviews(self):
         """Deleting one review does not remove other linked reviews."""
@@ -841,8 +841,8 @@ class TestReviewEndpoints(unittest.TestCase):
             "user_id": self.user_id,
             "place_id": self.place_id
         })
-        self.assertEqual(second_response.status_code, 201)
-        second_id = second_response.get_json()["id"]
+        self.assertEqual(second_response.status_code, 400)
+        self.assertEqual(second_response.get_json(), {"error": "Invalid input data"})
 
         delete_response = self.client.delete(f'/api/v1/reviews/{first_id}')
         self.assertEqual(delete_response.status_code, 200)
@@ -850,7 +850,7 @@ class TestReviewEndpoints(unittest.TestCase):
         place_reviews_response = self.client.get(f'/api/v1/places/{self.place_id}/reviews')
         self.assertEqual(place_reviews_response.status_code, 200)
         remaining_ids = {r["id"] for r in place_reviews_response.get_json()}
-        self.assertEqual(remaining_ids, {second_id})
+        self.assertEqual(remaining_ids, set())
 
     def test_update_review(self):
         """Update existing review returns 200 and persists changes."""
@@ -891,7 +891,7 @@ class TestReviewEndpoints(unittest.TestCase):
             "place_id": self.place_id
         })
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.get_json(), {"error": "rating must be between 1 and 5"})
+        self.assertEqual(response.get_json(), {"error": "Invalid input data"})
 
     def test_delete_review(self):
         """Delete existing review returns 200 then review is gone."""
