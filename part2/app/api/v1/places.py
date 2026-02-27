@@ -40,6 +40,51 @@ place_update_model = api.model('PlaceUpdate', {
     'amenities': fields.List(fields.String, description="List of amenities ID's")
 })
 
+def _owner_id(owner):
+    """Return owner id from either a user object or an id string."""
+    return owner.id if hasattr(owner, "id") else owner
+
+
+def _serialize_place_list_item(place):
+    """Serialize place for list/create responses with id references."""
+    return {
+        'id': place.id,
+        'title': place.title,
+        'description': place.description,
+        'price': place.price,
+        'latitude': place.latitude,
+        'longitude': place.longitude,
+        'owner_id': _owner_id(place.owner),
+        'amenities': [a.id for a in (place.amenities or [])],
+    }
+
+
+def _serialize_place_detail(place):
+    """Serialize place details with expanded owner and amenities."""
+    owner = place.owner if hasattr(place.owner, "id") else facade.get_user(place.owner)
+    owner_payload = None
+    if owner:
+        owner_payload = {
+            "id": owner.id,
+            "first_name": owner.first_name,
+            "last_name": owner.last_name,
+            "email": owner.email,
+        }
+
+    return {
+        'id': place.id,
+        'title': place.title,
+        'description': place.description,
+        'price': place.price,
+        'latitude': place.latitude,
+        'longitude': place.longitude,
+        'owner': owner_payload,
+        'amenities': [
+            {"id": a.id, "name": a.name}
+            for a in (place.amenities or [])
+        ],
+    }
+
 
 @api.route('/')
 class PlaceList(Resource):
@@ -60,17 +105,8 @@ class PlaceList(Resource):
 
         except (TypeError, ValueError):
             return {"error": "Invalid input data"}, 400
-        
-        return {
-            'id': new_place.id,
-            'title': new_place.title,
-            'description': new_place.description,
-            'price': new_place.price,
-            'latitude': new_place.latitude,
-            'longitude': new_place.longitude,
-            'owner_id': new_place.owner,
-            'amenities': new_place.amenities,
-        }, 201
+
+        return _serialize_place_list_item(new_place), 201
 
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
@@ -80,19 +116,7 @@ class PlaceList(Resource):
             tuple[list[dict], int]: List of places and HTTP 200 status.
         """
         all_places = facade.get_all_places()
-        return [
-            {
-            'id': p.id,
-            'title': p.title,
-            'description': p.description,
-            'price': p.price,
-            'latitude': p.latitude,
-            'longitude': p.longitude,
-            'owner_id': p.owner,
-            'amenities': p.amenities,
-            }
-            for p in all_places
-        ], 200
+        return [_serialize_place_list_item(p) for p in all_places], 200
 
 
 @api.route('/<place_id>')
@@ -113,18 +137,7 @@ class PlaceResource(Resource):
         place = facade.get_place(place_id)
         if place is None:
             return {"error": "Place not found"}, 404
-        return [
-            {
-            'id': place.id,
-            'title': place.title,
-            'description': place.description,
-            'price': place.price,
-            'latitude': place.latitude,
-            'longitude': place.longitude,
-            'owner_id': place.owner,
-            'amenities': place.amenities,
-            }
-        ], 200
+        return _serialize_place_detail(place), 200
 
     @api.expect(place_update_model, validate=True)
     @api.response(200, 'Place updated successfully')

@@ -180,6 +180,136 @@ python3 run.py
 
 ---
 
+## cURL Examples (Terminal Only)
+
+Use these directly in a terminal while the API is running.
+
+### 1) Create a user
+
+```bash
+curl -X POST "http://127.0.0.1:5000/api/v1/users/" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "first_name": "Jane",
+    "last_name": "Doe",
+    "email": "jane@example.com"
+}'
+```
+
+### 2) Create an amenity
+
+```bash
+curl -X POST "http://127.0.0.1:5000/api/v1/amenities/" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "WiFi"
+}'
+```
+
+### 3) Create a place
+
+Replace `<OWNER_ID>` and `<AMENITY_ID>` with real IDs from previous responses.
+
+```bash
+curl -X POST "http://127.0.0.1:5000/api/v1/places/" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Cozy Studio",
+    "description": "Near center",
+    "price": 80,
+    "latitude": 48.8566,
+    "longitude": 2.3522,
+    "owner_id": "<OWNER_ID>",
+    "amenities": ["<AMENITY_ID>"]
+}'
+```
+
+### 4) Create a second user (reviewer)
+
+```bash
+curl -X POST "http://127.0.0.1:5000/api/v1/users/" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "first_name": "John",
+    "last_name": "Smith",
+    "email": "john@example.com"
+}'
+```
+
+### 5) Create a review
+
+Replace `<REVIEWER_ID>` and `<PLACE_ID>`.
+
+```bash
+curl -X POST "http://127.0.0.1:5000/api/v1/reviews/" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Great stay",
+    "rating": 5,
+    "user_id": "<REVIEWER_ID>",
+    "place_id": "<PLACE_ID>"
+}'
+```
+
+### 6) Get reviews for one place
+
+```bash
+curl -X GET "http://127.0.0.1:5000/api/v1/places/<PLACE_ID>/reviews"
+```
+
+### 7) Update a review
+
+```bash
+curl -X PUT "http://127.0.0.1:5000/api/v1/reviews/<REVIEW_ID>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Updated comment",
+    "rating": 4,
+    "user_id": "<REVIEWER_ID>",
+    "place_id": "<PLACE_ID>"
+}'
+```
+
+### 8) Error example: owner cannot review own place
+
+```bash
+curl -X POST "http://127.0.0.1:5000/api/v1/reviews/" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Self review",
+    "rating": 5,
+    "user_id": "<OWNER_ID>",
+    "place_id": "<PLACE_ID>"
+}'
+```
+
+Expected error:
+
+```json
+{"error":"Owner cannot review own place"}
+```
+
+### 9) Error example: duplicate review from same user on same place
+
+```bash
+curl -X POST "http://127.0.0.1:5000/api/v1/reviews/" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Second review attempt",
+    "rating": 4,
+    "user_id": "<REVIEWER_ID>",
+    "place_id": "<PLACE_ID>"
+}'
+```
+
+Expected error:
+
+```json
+{"error":"Invalid input data"}
+```
+
+---
+
 ## Run Tests
 
 ```bash
