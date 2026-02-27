@@ -62,6 +62,7 @@ class PlaceList(Resource):
             return {"error": "Invalid input data"}, 400
         
         return {
+            'id': new_place.id,
             'title': new_place.title,
             'description': new_place.description,
             'price': new_place.price,
@@ -81,6 +82,7 @@ class PlaceList(Resource):
         all_places = facade.get_all_places()
         return [
             {
+            'id': p.id,
             'title': p.title,
             'description': p.description,
             'price': p.price,
@@ -113,6 +115,7 @@ class PlaceResource(Resource):
             return {"error": "Place not found"}, 404
         return [
             {
+            'id': place.id,
             'title': place.title,
             'description': place.description,
             'price': place.price,
