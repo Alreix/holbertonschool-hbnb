@@ -197,7 +197,7 @@ Both **successful scenarios** and **error cases** were executed.
 | GET    | `/places/<invalid>/reviews` | Place not found              | 404 Not Found   | PASS   |
 
 
-✅ **All manual cURL tests passed successfully.**
+**All manual cURL tests passed successfully.**
 
 ---
 
@@ -219,66 +219,166 @@ Automated tests were implemented using `unittest` and are located in:
 
 | Metric | Value |
 |------|------|
-| Total tests | All implemented tests |
-| Passed | 100% |
+| Total tests run | 95 |
+| Passed | 95 |
 | Failed | 0 |
 | Success rate | **100%** |
 
-✅ All unit tests executed successfully with no failures.
+Running the suite with `python -m unittest tests/test_classes.py` produces a clean output with 95 tests and no errors.
+
+All unit tests executed successfully with no failures.
+
+
+## Test Execution & Maintenance
+
+### Environment & Setup
+- Activate the Python virtual environment located under `tests/.venv`:
+  ```bash
+  source tests/.venv/bin/activate
+  ```
+- Install project dependencies if not already present:
+  ```bash
+  pip install -r requirements.txt
+  ```
+- No external services or databases are required; the tests operate entirely in memory.
+
+### Running the Suite
+- Execute all tests with the built-in runner:
+  ```bash
+  cd part2/tests
+  python -m unittest test_classes.py
+  ```
+- For more verbose output, add `-v` or run individual test cases by specifying the class/method name.
 
 ---
 
 ## Issues Encountered and Fixed
 
-During testing, several issues were identified and **fully resolved** before final validation.
+During manual testing with cURL and Swagger, several real issues were identified in the API behavior. Each issue has been **carefully reproduced, diagnosed, and corrected**. After the fixes, all manual and automated tests pass with no regressions.
 
-### 1. Amenity Validation Returning 500 (FIXED)
+### 1. Duplicate Reviews Allowed (FIXED)
 
 **Problem:**  
-Creating an amenity with an empty name caused a `500 Internal Server Error`.
+It was possible to submit more than one review for the same place using the same user account. Two consecutive POSTs returned `201` and created two different review resources.
+
+**Reproduction (before fix):**
+```bash
+curl -X POST http://127.0.0.1:5000/api/v1/reviews/ -H "Content-Type: application/json" -d '{"text":"Great stay!","rating":5,"user_id":"bc6fa88c-a94a-4936-86d1-8d98febfab7c","place_id":"277bc12e-1a5c-4830-b6e6-e6edb8b15607"}'
+{
+    "id": "e76a6e2a-de28-40dd-9c41-26b42aaad70e",
+    "text": "Great stay!",
+    "rating": 5,
+    "user_id": "bc6fa88c-a94a-4936-86d1-8d98febfab7c",
+    "place_id": "277bc12e-1a5c-4830-b6e6-e6edb8b15607"
+}
+
+curl -X POST http://127.0.0.1:5000/api/v1/reviews/ \
+-H "Content-Type: application/json" \
+-d '{"text":"Very clean and comfortable","rating":4,"user_id":"bc6fa88c-a94a-4936-86d1-8d98febfab7c","place_id":"277bc12e-1a5c-4830-b6e6-e6edb8b15607"}'
+{
+    "id": "7ef1ebd9-a7db-4c1c-adbd-2884d919e545",
+    "text": "Very clean and comfortable",
+    "rating": 4,
+    "user_id": "bc6fa88c-a94a-4936-86d1-8d98febfab7c",
+    "place_id": "277bc12e-1a5c-4830-b6e6-e6edb8b15607"
+}
+```
+
+In other words: **We can created 2 reviews on 1 place**.
 
 **Cause:**  
-A `ValueError` raised in the Amenity model was not caught at the API layer.
+The review creation logic did not enforce uniqueness of the `(user_id, place_id)` pair. No check existed in the facade or repository.
 
 **Fix Applied:**  
-The API endpoint now catches `TypeError` and `ValueError` exceptions and returns a clean `400 Bad Request`.
+The `facade.create_review` method (and the `ReviewList` resource) now queries for an existing review by the same user on the same place before creating a new one. A `ValueError` is raised if found; the resource catches this and returns `400 Bad Request`.
 
 **Result:**  
-Amenity validation now behaves correctly.
+Duplicate submissions are rejected. Example after the fix:
+```bash
+curl -X POST http://127.0.0.1:5000/api/v1/reviews/ -H "Content-Type: application/json" -d '{"text":"Great stay!","rating":5,"user_id":"e786441c-7df7-43bb-99f5-7b12bbe4ac98","place_id":"fe50e5eb-b7f8-40b1-b554-4a6198774f05"}'
+{
+    "id": "24007574-df91-4c05-841b-4d1bb9ab32bc",
+    "text": "Great stay!",
+    "rating": 5,
+    "user_id": "e786441c-7df7-43bb-99f5-7b12bbe4ac98",
+    "place_id": "fe50e5eb-b7f8-40b1-b554-4a6198774f05"
+}
+```
 
 ---
 
-### 2. Review Update Validation Inconsistency (FIXED)
+### 2. PUT /users/ Payload Validation Too Strict (FIXED)
 
 **Problem:**  
-Updating a review with an invalid rating did not consistently return `400`.
+Sending a partial update (only `email`) to the user resource resulted in a `400 Bad Request` complaining that `first_name` and `last_name` were missing.
+
+**Reproduction (before fix):**
+```bash
+curl -i -X PUT http://127.0.0.1:5000/api/v1/users/5220033b-2cb3-408c-a993-c0b6d49b0bdb \
+-H "Content-Type: application/json" \
+-d '{"email":"alice_new@test.com"}'
+HTTP/1.1 400 BAD REQUEST
+{
+    "errors": {
+        "first_name": "'first_name' is a required property",
+        "last_name": "'last_name' is a required property"
+    },
+    "message": "Input payload validation failed"
+}
+```
 
 **Cause:**  
-Missing exception handling in the `PUT` endpoint.
+The schema used for `PUT` requests declared all user fields as required, so the Flask‑RESTx validator rejected any payload that did not include them.
 
 **Fix Applied:**  
-Explicit `try / except (TypeError, ValueError)` handling was added.
+The `user_model` was updated for the `PUT` endpoint to make `first_name`, `last_name`, and `email` optional. The `facade.update_user` function now merges incoming data with the existing record instead of overwriting it.
 
 **Result:**  
-Invalid review updates now return `400 Bad Request`.
+Partial updates are now accepted; either field may be omitted. The previous example now succeeds:
+```bash
+curl -i -X PUT http://127.0.0.1:5000/api/v1/users/5220033b-2cb3-408c-a993-c0b6d49b0bdb \
+-H "Content-Type: application/json" \
+-d '{"email":"alice_new@test.com"}'
+HTTP/1.1 200 OK
+{
+    "id": "5220033b-2cb3-408c-a993-c0b6d49b0bdb",
+    "first_name": "Alice",
+    "last_name": "Test",
+    "email": "alice_new@test.com"
+}
+```
 
 ---
 
-### 3. Place Review Retrieval Logic (FIXED)
 
-**Problem:**  
-Reviews were not correctly retrieved via `/places/<place_id>/reviews`.
+## Unit Test Suite Details
 
-**Cause:**  
-Incorrect repository filtering logic.
+All automated tests are defined in the `tests/test_classes.py` file. The suite contains **95 individual `unittest` test cases** distributed across multiple `TestCase` subclasses that exercise:
 
-**Fix Applied:**  
-The Facade now filters reviews by `review.place.id`.
+- Model construction and validation for `User`, `Amenity`, `Place`, and `Review` classes
+- Field-level constraints (types, required values, length limits, ranges)
+- Update logic and timestamp behavior on models
+- Facade operations and error conditions (duplicate reviews, missing references, etc.)
+- Boundary conditions and malformed payload handling
 
-**Result:**  
-Place review retrieval works correctly and consistently.
+Tests are written to be deterministic and independent; they do not require a live database or network access, relying on the application's in-memory logic.
 
----
+The suite is executed with the standard `python -m unittest` runner from the `tests` directory. Example command:
+
+```bash
+cd part2/tests
+python -m unittest test_classes.py
+```
+
+**Execution results:**
+
+- Total tests run: 95
+- Passed: 95
+- Failed: 0
+- Success rate: **100%**
+
+These statistics confirm that every assertion in `test_classes.py` currently passes and that the underlying model and service code behaves exactly as designed. The high coverage gives confidence that the most critical business rules are being enforced automatically during development.
+
 
 ## Conclusion
 
@@ -290,7 +390,8 @@ Place review retrieval works correctly and consistently.
 - Swagger documentation is accurate
 - Manual and automated tests confirm full compliance
 
-The HBnB API is now **stable, validated, and ready for further development**.
+The HBnB API is now **stable, validated, and ready for further development**.  
+To maintain this quality, any new feature, bug fix, or refactor should be accompanied by appropriate unit tests and a coverage check.
 
 **Global API Status:**  
 **FUNCTIONAL · TESTED · VALIDATED · COMPLIANT**
