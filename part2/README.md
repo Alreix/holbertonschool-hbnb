@@ -1,25 +1,59 @@
-# HBnB - Part 2 (Business Logic + REST API)
+# HBnB - Part 2: Business Logic and REST API
 
-## Overview
+## Introduction
 
-This repository contains Part 2 of the HBnB backend project:
+Cette partie 2 du projet HBnB correspond à la phase d'implementation de l'application, a partir de l'architecture definie precedemment.
+L'objectif est de construire une base fonctionnelle et evolutive avec Python, Flask et Flask-RESTX, en mettant en place:
 
-- domain models (`User`, `Place`, `AmenityModel`, `Review`)
-- service layer with a Facade (`HBnBFacade`)
-- in-memory persistence (`InMemoryRepository`)
-- REST API with Flask-RESTX namespaces
-- unit and endpoint tests in `tests/test_classes.py`
+- la couche Presentation (API REST)
+- la couche Logique Metier (services + modeles)
+- la couche Persistance (repository en memoire)
 
-Persistence is currently in-memory only: restarting the app clears all data.
+L'application met en oeuvre des principes d'architecture logicielle en couches, ainsi que les patterns **Facade** et **Repository** pour ameliorer la maintenabilite, la lisibilite et la scalabilite du code.
+
+Note: l'authentification JWT et la gestion des roles ne sont pas traitees dans cette partie. Elles sont prevues pour la partie suivante.
 
 ---
 
-## Tech Stack
+## Project Objectives
 
-- Python 3
-- Flask
-- Flask-RESTX
-- `unittest` for tests
+- Construire une API modulaire avec Flask et Flask-RESTX.
+- Implementer la logique metier des entites `User`, `Place`, `Amenity`, `Review`.
+- Mettre en place une persistance en memoire via `InMemoryRepository`.
+- Documenter les endpoints API (Swagger UI).
+- Tester et valider les endpoints avec `unittest` et `cURL`.
+
+---
+
+## Project Architecture (Schema)
+
+```text
+Client (cURL / Postman / Frontend)
+            |
+            v
++----------------------------------+
+| Presentation Layer (app/api/v1/) |
+| Flask-RESTX Namespaces/Routes    |
++----------------------------------+
+            |
+            v
++----------------------------------+
+| Business Layer (app/services/)   |
+| HBnBFacade                       |
++----------------------------------+
+            |
+            v
++----------------------------------+
+| Domain Models (app/models/)      |
+| User / Place / Amenity / Review  |
++----------------------------------+
+            |
+            v
++----------------------------------+
+| Persistence (app/persistence/)   |
+| InMemoryRepository               |
++----------------------------------+
+```
 
 ---
 
@@ -56,40 +90,83 @@ part2/
 
 ---
 
-## Architecture
+## Layer Details
 
-### 1) API Layer (`app/api/v1/`)
+### 1) Presentation Layer (API)
 
-- Defines routes with Flask-RESTX namespaces.
-- Validates request payload shape.
-- Returns JSON responses with explicit status codes.
+Fichiers: `app/api/v1/*.py`
 
-### 2) Service Layer (`app/services/facade.py`)
+Responsabilites:
+- definir les endpoints REST (`GET`, `POST`, `PUT`, `DELETE`)
+- valider les payloads d'entree
+- retourner des reponses JSON coherentes
+- exposer une documentation Swagger via Flask-RESTX
 
-- Centralizes domain operations:
-  - users: create/get/list/update
-  - amenities: create/get/list/update
-  - places: create/get/list/update
-  - reviews: create/get/list/update/delete + list by place
-- Enforces cross-entity consistency:
-  - place owner must exist
-  - amenities linked to a place must exist
-  - review user and place must exist
-  - one review per user per place
+URL de documentation:
+- `http://127.0.0.1:5000/api/v1/`
 
-### 3) Domain Models (`app/models/`)
+### 2) Business Layer (Services / Facade)
 
-- `BaseModel`: `id`, `created_at`, `updated_at`, `save()`, `update()`
-- `User`: name/email validation + optional `is_admin`
-- `Place`: title/price/coordinates/owner validation + relations
-- `AmenityModel`: amenity name validation
-- `Review`: text/rating validation + strict `User`/`Place` relations
+Fichier: `app/services/facade.py`
 
-### 4) Persistence Layer (`app/persistence/repository.py`)
+Responsabilites:
+- centraliser la logique metier dans `HBnBFacade`
+- orchestrer les operations CRUD de toutes les entites
+- valider les relations entre entites (owner, user, place, amenities)
 
-- Generic repository interface.
-- In-memory implementation with:
-  - `add`, `get`, `get_all`, `update`, `delete`, `get_by_attribute`
+### 3) Persistence Layer (Repository)
+
+Fichier: `app/persistence/repository.py`
+
+Responsabilites:
+- stocker les objets en memoire
+- fournir des operations communes: `add`, `get`, `get_all`, `update`, `delete`, `get_by_attribute`
+
+### 4) Domain Models
+
+Fichiers: `app/models/*.py`
+
+Entites principales:
+- `BaseModel`
+- `User`
+- `Place`
+- `AmenityModel`
+- `Review`
+
+### 5) Configuration et Execution
+
+- `config.py`: configuration generale de l'application
+- `run.py`: point d'entree pour lancer le serveur
+- `app/__init__.py`: factory Flask + enregistrement des namespaces API
+
+---
+
+## Main Features
+
+### Users
+- creation utilisateur
+- recuperation liste/detail
+- mise a jour profil
+- verification unicite email
+
+### Places
+- creation de place avec owner existant
+- ajout de liste d'amenities par IDs
+- recuperation liste/detail
+- mise a jour des attributs et relations
+- endpoint des reviews d'une place
+
+### Amenities
+- creation amenity
+- recuperation liste/detail
+- mise a jour amenity
+
+### Reviews
+- creation review liee a un user/place existants
+- recuperation liste/detail
+- mise a jour review
+- suppression review
+- contraintes metier appliquees (validation des donnees, regles de relation)
 
 ---
 
@@ -97,24 +174,19 @@ part2/
 
 Base URL: `http://127.0.0.1:5000`
 
-Swagger UI: `http://127.0.0.1:5000/api/v1/`
-
 ### Users
-
 - `POST /api/v1/users/`
 - `GET /api/v1/users/`
 - `GET /api/v1/users/<user_id>`
 - `PUT /api/v1/users/<user_id>`
 
 ### Amenities
-
 - `POST /api/v1/amenities/`
 - `GET /api/v1/amenities/`
 - `GET /api/v1/amenities/<amenity_id>`
 - `PUT /api/v1/amenities/<amenity_id>`
 
 ### Places
-
 - `POST /api/v1/places/`
 - `GET /api/v1/places/`
 - `GET /api/v1/places/<place_id>`
@@ -122,45 +194,11 @@ Swagger UI: `http://127.0.0.1:5000/api/v1/`
 - `GET /api/v1/places/<place_id>/reviews`
 
 ### Reviews
-
 - `POST /api/v1/reviews/`
 - `GET /api/v1/reviews/`
 - `GET /api/v1/reviews/<review_id>`
 - `PUT /api/v1/reviews/<review_id>`
 - `DELETE /api/v1/reviews/<review_id>`
-
----
-
-## Validation Rules (Implemented)
-
-### User
-
-- `first_name`: required, string, max 50
-- `last_name`: required, string, max 50
-- `email`: required, valid format, trimmed + lowercased
-- `is_admin`: boolean
-
-### Place
-
-- `title`: required, string, max 100
-- `description`: optional, max 1000
-- `price`: numeric, `>= 0`
-- `latitude`: numeric, between `-90` and `90`
-- `longitude`: numeric, between `-180` and `180`
-- `owner_id`: must reference an existing user
-- `amenities`: list of existing amenity IDs
-
-### Amenity
-
-- `name`: required, non-empty string, max 50
-
-### Review
-
-- `text`: required, non-empty string
-- `rating`: integer between `1` and `5`
-- `user_id`: must reference an existing user
-- `place_id`: must reference an existing place
-- owner cannot review their own place (API-level check)
 
 ---
 
@@ -172,7 +210,7 @@ Swagger UI: `http://127.0.0.1:5000/api/v1/`
 python3 -m pip install -r requirements.txt
 ```
 
-### 2) Start the server
+### 2) Start server
 
 ```bash
 python3 run.py
@@ -182,38 +220,28 @@ python3 run.py
 
 ## cURL Examples (Terminal Only)
 
-Use these directly in a terminal while the API is running.
-
-### 1) Create a user
+### Create a user
 
 ```bash
-curl -X POST "http://127.0.0.1:5000/api/v1/users/" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "first_name": "Jane",
+curl -X POST "http://127.0.0.1:5000/api/v1/users/" -H "Content-Type: application/json" -d '{
+    "first_name": "John",
     "last_name": "Doe",
-    "email": "jane@example.com"
+    "email": "john.doe@example.com"
 }'
 ```
 
-### 2) Create an amenity
+### Create an amenity
 
 ```bash
-curl -X POST "http://127.0.0.1:5000/api/v1/amenities/" \
-  -H "Content-Type: application/json" \
-  -d '{
+curl -X POST "http://127.0.0.1:5000/api/v1/amenities/" -H "Content-Type: application/json" -d '{
     "name": "WiFi"
 }'
 ```
 
-### 3) Create a place
-
-Replace `<OWNER_ID>` and `<AMENITY_ID>` with real IDs from previous responses.
+### Create a place
 
 ```bash
-curl -X POST "http://127.0.0.1:5000/api/v1/places/" \
-  -H "Content-Type: application/json" \
-  -d '{
+curl -X POST "http://127.0.0.1:5000/api/v1/places/" -H "Content-Type: application/json" -d '{
     "title": "Cozy Studio",
     "description": "Near center",
     "price": 80,
@@ -224,26 +252,10 @@ curl -X POST "http://127.0.0.1:5000/api/v1/places/" \
 }'
 ```
 
-### 4) Create a second user (reviewer)
+### Create a review
 
 ```bash
-curl -X POST "http://127.0.0.1:5000/api/v1/users/" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "first_name": "John",
-    "last_name": "Smith",
-    "email": "john@example.com"
-}'
-```
-
-### 5) Create a review
-
-Replace `<REVIEWER_ID>` and `<PLACE_ID>`.
-
-```bash
-curl -X POST "http://127.0.0.1:5000/api/v1/reviews/" \
-  -H "Content-Type: application/json" \
-  -d '{
+curl -X POST "http://127.0.0.1:5000/api/v1/reviews/" -H "Content-Type: application/json" -d '{
     "text": "Great stay",
     "rating": 5,
     "user_id": "<REVIEWER_ID>",
@@ -251,81 +263,55 @@ curl -X POST "http://127.0.0.1:5000/api/v1/reviews/" \
 }'
 ```
 
-### 6) Get reviews for one place
+### Get reviews by place
 
 ```bash
 curl -X GET "http://127.0.0.1:5000/api/v1/places/<PLACE_ID>/reviews"
 ```
 
-### 7) Update a review
-
-```bash
-curl -X PUT "http://127.0.0.1:5000/api/v1/reviews/<REVIEW_ID>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "text": "Updated comment",
-    "rating": 4,
-    "user_id": "<REVIEWER_ID>",
-    "place_id": "<PLACE_ID>"
-}'
-```
-
-### 8) Error example: owner cannot review own place
-
-```bash
-curl -X POST "http://127.0.0.1:5000/api/v1/reviews/" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "text": "Self review",
-    "rating": 5,
-    "user_id": "<OWNER_ID>",
-    "place_id": "<PLACE_ID>"
-}'
-```
-
-Expected error:
-
-```json
-{"error":"Owner cannot review own place"}
-```
-
-### 9) Error example: duplicate review from same user on same place
-
-```bash
-curl -X POST "http://127.0.0.1:5000/api/v1/reviews/" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "text": "Second review attempt",
-    "rating": 4,
-    "user_id": "<REVIEWER_ID>",
-    "place_id": "<PLACE_ID>"
-}'
-```
-
-Expected error:
-
-```json
-{"error":"Invalid input data"}
-```
-
 ---
 
-## Run Tests
+## Tests and Validation
+
+### Automated tests
 
 ```bash
 python3 -m unittest tests/test_classes.py -v
 ```
 
-Test suite covers:
+### Manual tests
 
-- model validation and update behavior
-- repository/facade-integrated endpoint behavior
-- success and error paths for all exposed API resources
+- Swagger UI (`/api/v1/`)
+- `cURL` commands (examples ci-dessus)
+
+Points verifies:
+- cas nominal
+- validations de payload
+- erreurs `400/404`
+- relations entre entites
+- regressions sur serialization des reponses
+
+---
+
+## Development Workflow
+
+Workflow utilise:
+- implementation par couche (models -> facade -> API)
+- validation incrementale via `unittest`
+- verification manuelle avec `cURL`
+- mise a jour continue de la documentation (`README`)
+
+---
+
+## Authors
+
+- HBnB Project Team
+- Contributors: Faroux Joan, Abbattista Morgane, Uzun Bengin
 
 ---
 
 ## Notes
 
-- Data is stored in memory only.
-- Restarting the app resets users, places, amenities, and reviews.
-- `requirements.txt` currently contains minimal direct dependencies (`flask`, `flask-restx`).
+- Persistance en memoire uniquement.
+- Un redemarrage du serveur reinitialise les donnees.
+- Dependances minimales actuelles: `flask`, `flask-restx`.
