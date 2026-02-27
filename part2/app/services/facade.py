@@ -188,7 +188,7 @@ class HBnBFacade:
             place_data (dict): Place creation payload.
 
         Returns:
-            dict: Minimal serialized representation of the created place.
+            Place: The newly created place instance.
 
         Raises:
             TypeError: If input types are invalid.
@@ -232,82 +232,26 @@ class HBnBFacade:
 
         self.place_repo.add(place)
 
-        return {
-            "id": place.id,
-            "title": place.title,
-            "description": place.description,
-            "price": place.price,
-            "latitude": place.latitude,
-            "longitude": place.longitude,
-            "owner_id": owner_id,
-            "amenities": [a.id for a in amenities],
-        }
+        return place
 
     def get_place(self, place_id):
-        """Retrieve detailed place data with nested related objects.
-
-        The response includes:
-            - owner data as a nested user dictionary,
-            - amenities as a list of nested dictionaries.
+        """Retrieve a place by ID.
 
         Args:
             place_id (str): Place identifier.
 
         Returns:
-            dict | None: Place details, or `None` if not found.
+            Place | None: Matching place, or `None` if not found.
         """
-        place = self.place_repo.get(place_id)
-        if place is None:
-            return None
-
-        owner_id = place.owner.id if hasattr(place.owner, "id") else place.owner
-        owner = self.user_repo.get(owner_id)
-
-        owner_dict = None
-        if owner:
-            owner_dict = {
-                "id": owner.id,
-                "first_name": getattr(owner, "first_name", None),
-                "last_name": getattr(owner, "last_name", None),
-                "email": getattr(owner, "email", None),
-            }
-
-        amenities_list = []
-        for a in (place.amenities or []):
-            if hasattr(a, "id"):
-                amenities_list.append({"id": a.id, "name": getattr(a, "name", None)})
-            else:
-                obj = self.amenity_repo.get(a)
-                if obj:
-                    amenities_list.append({"id": obj.id, "name": getattr(obj, "name", None)})
-
-        return {
-            "id": place.id,
-            "title": place.title,
-            "description": place.description,
-            "price": place.price,
-            "latitude": place.latitude,
-            "longitude": place.longitude,
-            "owner": owner_dict,
-            "amenities": amenities_list,
-        }
+        return self.place_repo.get(place_id)
 
     def get_all_places(self):
-        """Retrieve all places in a lightweight format.
+        """Retrieve all places.
 
         Returns:
-            list[dict]: Places with their primary fields.
+            list[Place]: All places currently stored in the repository.
         """
-        places = self.place_repo.get_all()
-        return [
-            {
-                "id": p.id,
-                "title": p.title,
-                "latitude": p.latitude,
-                "longitude": p.longitude,
-            }
-            for p in places
-        ]
+        return self.place_repo.get_all()
 
     def update_place(self, place_id, place_data):
         """Update an existing place with consistency checks.
