@@ -167,12 +167,4 @@ class PlaceReviewList(Resource):
         reviews = facade.get_reviews_by_place(place_id)
         if reviews is None:
             return {"error": "Place not found"}, 404
-        return [
-            {
-            "id": reviews.id,
-            "text": reviews.text,
-            "rating": reviews.rating,
-            "user_id": reviews.user.id,
-            "place_id": reviews.place.id
-            }
-        ], 200
+        return reviews, 200

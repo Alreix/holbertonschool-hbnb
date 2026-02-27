@@ -42,6 +42,10 @@ class ReviewList(Resource):
         if not existing_user:
             return {"error": "User doesn\'t exists"}, 400
 
+        owner_id = existing_place.owner.id if hasattr(existing_place.owner, "id") else existing_place.owner
+        if owner_id == existing_user.id:
+            return {"error": "Owner cannot review own place"}, 400
+
         try:
             new_review = facade.create_review(review_data)
         except (TypeError, ValueError):
