@@ -2,26 +2,26 @@
 
 ## Introduction
 
-Cette partie 2 du projet HBnB correspond à la phase d'implementation de l'application, a partir de l'architecture definie precedemment.
-L'objectif est de construire une base fonctionnelle et evolutive avec Python, Flask et Flask-RESTX, en mettant en place:
+This stage of the HBnB project corresponds to the application implementation phase, based on the architecture defined previously.
+The goal is to build a functional and scalable foundation with Python, Flask, and Flask-RESTX by setting up:
 
-- la couche Presentation (API REST)
-- la couche Logique Metier (services + modeles)
-- la couche Persistance (repository en memoire)
+- the Presentation layer (REST API)
+- the Business Logic layer (services + models)
+- the Persistence layer (in-memory repository)
 
-L'application met en oeuvre des principes d'architecture logicielle en couches, ainsi que les patterns **Facade** et **Repository** pour ameliorer la maintenabilite, la lisibilite et la scalabilite du code.
+The application applies layered software architecture principles, along with the **Facade** and **Repository** patterns, to improve maintainability, readability, and scalability.
 
-Note: l'authentification JWT et la gestion des roles ne sont pas traitees dans cette partie. Elles sont prevues pour la partie suivante.
+Note: JWT authentication and role management are not covered in this stage. They are planned for the next stage.
 
 ---
 
 ## Project Objectives
 
-- Construire une API modulaire avec Flask et Flask-RESTX.
-- Implementer la logique metier des entites `User`, `Place`, `Amenity`, `Review`.
-- Mettre en place une persistance en memoire via `InMemoryRepository`.
-- Documenter les endpoints API (Swagger UI).
-- Tester et valider les endpoints avec `unittest` et `cURL`.
+- Build a modular API with Flask and Flask-RESTX.
+- Implement business logic for `User`, `Place`, `Amenity`, and `Review` entities.
+- Set up in-memory persistence via `InMemoryRepository`.
+- Document API endpoints (Swagger UI).
+- Test and validate endpoints with `unittest` and `cURL`.
 
 ---
 
@@ -94,79 +94,79 @@ part2/
 
 ### 1) Presentation Layer (API)
 
-Fichiers: `app/api/v1/*.py`
+Files: `app/api/v1/*.py`
 
-Responsabilites:
-- definir les endpoints REST (`GET`, `POST`, `PUT`, `DELETE`)
-- valider les payloads d'entree
-- retourner des reponses JSON coherentes
-- exposer une documentation Swagger via Flask-RESTX
+Responsibilities:
+- define REST endpoints (`GET`, `POST`, `PUT`, `DELETE`)
+- validate input payloads
+- return consistent JSON responses
+- expose Swagger documentation through Flask-RESTX
 
-URL de documentation:
+Documentation URL:
 - `http://127.0.0.1:5000/api/v1/`
 
 ### 2) Business Layer (Services / Facade)
 
-Fichier: `app/services/facade.py`
+File: `app/services/facade.py`
 
-Responsabilites:
-- centraliser la logique metier dans `HBnBFacade`
-- orchestrer les operations CRUD de toutes les entites
-- valider les relations entre entites (owner, user, place, amenities)
+Responsibilities:
+- centralize business logic in `HBnBFacade`
+- orchestrate CRUD operations across all entities
+- validate relationships between entities (owner, user, place, amenities)
 
 ### 3) Persistence Layer (Repository)
 
-Fichier: `app/persistence/repository.py`
+File: `app/persistence/repository.py`
 
-Responsabilites:
-- stocker les objets en memoire
-- fournir des operations communes: `add`, `get`, `get_all`, `update`, `delete`, `get_by_attribute`
+Responsibilities:
+- store objects in memory
+- provide shared operations: `add`, `get`, `get_all`, `update`, `delete`, `get_by_attribute`
 
 ### 4) Domain Models
 
-Fichiers: `app/models/*.py`
+Files: `app/models/*.py`
 
-Entites principales:
+Main entities:
 - `BaseModel`
 - `User`
 - `Place`
 - `AmenityModel`
 - `Review`
 
-### 5) Configuration et Execution
+### 5) Configuration and Runtime
 
-- `config.py`: configuration generale de l'application
-- `run.py`: point d'entree pour lancer le serveur
-- `app/__init__.py`: factory Flask + enregistrement des namespaces API
+- `config.py`: global application configuration
+- `run.py`: server entry point
+- `app/__init__.py`: Flask factory + API namespace registration
 
 ---
 
 ## Main Features
 
 ### Users
-- creation utilisateur
-- recuperation liste/detail
-- mise a jour profil
-- verification unicite email
+- user creation
+- list/detail retrieval
+- profile update
+- email uniqueness check
 
 ### Places
-- creation de place avec owner existant
-- ajout de liste d'amenities par IDs
-- recuperation liste/detail
-- mise a jour des attributs et relations
-- endpoint des reviews d'une place
+- place creation with an existing owner
+- amenities list assignment by IDs
+- list/detail retrieval
+- attribute and relationship updates
+- reviews endpoint for a place
 
 ### Amenities
-- creation amenity
-- recuperation liste/detail
-- mise a jour amenity
+- amenity creation
+- list/detail retrieval
+- amenity update
 
 ### Reviews
-- creation review liee a un user/place existants
-- recuperation liste/detail
-- mise a jour review
-- suppression review
-- contraintes metier appliquees (validation des donnees, regles de relation)
+- review creation linked to existing user/place
+- list/detail retrieval
+- review update
+- review deletion
+- business constraints applied (data validation, relationship rules)
 
 ---
 
@@ -290,24 +290,24 @@ python3 -m unittest tests/test_classes.py -v
 ### Manual tests
 
 - Swagger UI (`/api/v1/`)
-- `cURL` commands (examples ci-dessus)
+- `cURL` commands (examples above)
 
-Points verifies:
-- cas nominal
-- validations de payload
-- erreurs `400/404`
-- relations entre entites
-- regressions sur serialization des reponses
+Validated points:
+- happy-path scenarios
+- payload validation
+- `400/404` errors
+- entity relationships
+- response serialization regression checks
 
 ---
 
 ## Development Workflow
 
-Workflow utilise:
-- implementation par couche (models -> facade -> API)
-- validation incrementale via `unittest`
-- verification manuelle avec `cURL`
-- mise a jour continue de la documentation (`README`)
+Workflow used:
+- layer-by-layer implementation (models -> facade -> API)
+- incremental validation with `unittest`
+- manual verification with `cURL`
+- continuous documentation updates (`README`)
 
 ---
 
@@ -320,6 +320,6 @@ Workflow utilise:
 
 ## Notes
 
-- Persistance en memoire uniquement.
-- Un redemarrage du serveur reinitialise les donnees.
-- Dependances minimales actuelles: `flask`, `flask-restx`.
+- In-memory persistence only.
+- Restarting the server resets data.
+- Current minimal dependencies: `flask`, `flask-restx`.
