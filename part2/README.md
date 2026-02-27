@@ -28,7 +28,7 @@ Persistence is currently in-memory only: restarting the app clears all data.
 ```text
 part2/
 ├── app/
-│   ├── __init__.py                # Flask app factory + namespace registration
+│   ├── __init__.py
 │   ├── api/v1/
 │   │   ├── users.py
 │   │   ├── places.py
@@ -41,7 +41,7 @@ part2/
 │   │   ├── amenity.py
 │   │   └── review.py
 │   ├── services/
-│   │   ├── __init__.py            # shared facade instance
+│   │   ├── __init__.py
 │   │   └── facade.py
 │   └── persistence/
 │       ├── __init__.py
