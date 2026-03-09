@@ -6,7 +6,7 @@ and update users.
 
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
-from app.models.user import hash_password
+from app import bcrypt
 
 api = Namespace('users', description='User operations')
 
@@ -45,13 +45,11 @@ class UserList(Resource):
             return {'error': 'Email already registered'}, 400
         
         try:
-            hashed_pw = hash_password(user_data['password'])
-
             user_data_to_create = {
                 'first_name': user_data['first_name'],
                 'last_name': user_data['last_name'],
                 'email': user_data['email'],
-                'password': hashed_pw
+                'password': user_data['password']
             }
 
             new_user = facade.create_user(user_data_to_create)

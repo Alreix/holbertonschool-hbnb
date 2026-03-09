@@ -5,6 +5,7 @@ This module defines the user entity and validation helpers.
 
 import re
 from .base import BaseModel
+from app import bcrypt
 
 
 class User(BaseModel):
@@ -32,9 +33,9 @@ class User(BaseModel):
         self.last_name = self.validate_last_name(last_name)
         self.email = self.validate_email(email)
         self.is_admin = self.validate_is_admin(is_admin)
-        self.password = hash_password(password)
+        self.password = self.hash_password(password)
 
-    def hash_password(password):
+    def hash_password(self, password):
         """Hash the password using bcrypt.
 
         Args:
