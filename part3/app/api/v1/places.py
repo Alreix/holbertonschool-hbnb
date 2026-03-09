@@ -5,6 +5,7 @@ places, as well as retrieve reviews for a specific place.
 """
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 api = Namespace('places', description='Place operations')
 
@@ -89,20 +90,18 @@ def _serialize_place_detail(place):
 @api.route('/')
 class PlaceList(Resource):
     """Resource for place collection operations."""
+    @jwt_required()
     @api.expect(place_model, validate=True)
     @api.response(201, 'Place successfully created')
     @api.response(400, 'Invalid input data')
     def post(self):
-        """Create a new place.
-
-        Returns:
-            tuple[dict, int]: Created place payload and HTTP 201 status.
-        """
-        data_place = api.payload
+        """Create a new place."""
+        current_user = get_jwt_identity()
+        data_place = api.payload.copy()
+        data_place["owner_id"] = current_user
 
         try:
             new_place = facade.create_place(data_place)
-
         except (TypeError, ValueError) as e:
             return {"error": str(e)}, 400
 
@@ -143,23 +142,30 @@ class PlaceResource(Resource):
     @api.response(200, 'Place updated successfully')
     @api.response(404, 'Place not found')
     @api.response(400, 'Invalid input data')
+    @api.response(403, 'Unauthorized action')
+    @jwt_required()
     def put(self, place_id):
-        """Update a place by ID.
+        """Update a place by ID."""
+        current_user = get_jwt_identity()
 
-        Args:
-            place_id (str): Identifier of the place to update.
+        place = facade.get_place(place_id)
+        if place is None:
+            return {"error": "Place not found"}, 404
 
-        Returns:
-            tuple[dict, int]: Success payload and HTTP 200 status.
-            tuple[dict, int]: Error payload and HTTP 404/400 status.
-        """
+        if str(_owner_id(place.owner)) != str(current_user):
+            return {"error": "Unauthorized action"}, 403
+
+        update_data = api.payload.copy()
+        update_data.pop("owner_id", None)
+
         try:
-            ok = facade.update_place(place_id, api.payload)
-            if not ok:
+            updated_place = facade.update_place(place_id, update_data)
+            if not updated_place:
                 return {"error": "Place not found"}, 404
-            return {"message": "Place updated successfully"}, 200
         except (TypeError, ValueError) as e:
             return {"error": str(e)}, 400
+
+        return {"message": "Place updated successfully"}, 200
 
 
 @api.route('/<place_id>/reviews')
