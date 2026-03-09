@@ -13,7 +13,7 @@ class User(BaseModel):
     # Simple email pattern for common cases
     EMAIL_PATTERN = r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
 
-    def __init__(self, first_name, last_name, email, is_admin=False, password):
+    def __init__(self, first_name, last_name, email, password, is_admin=False):
         """Initialize a user instance with validated fields.
 
         Args:
