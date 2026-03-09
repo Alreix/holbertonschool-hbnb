@@ -6,6 +6,7 @@ and update users.
 
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
+from app.models.user import hash_password
 
 api = Namespace('users', description='User operations')
 
@@ -16,7 +17,8 @@ user_model = api.model('User', {
     'last_name': fields.String(required=True,
                                description='Last name of the user'),
     'email': fields.String(required=True,
-                           description='Email of the user')
+                           description='Email of the user'),
+    'password': fields.String(required=True, description='Password of the user')
 })
 
 
@@ -41,18 +43,27 @@ class UserList(Resource):
         existing_user = facade.get_user_by_email(user_data['email'])
         if existing_user:
             return {'error': 'Email already registered'}, 400
-
+        
         try:
-            new_user = facade.create_user(user_data)
+            hashed_pw = hash_password(user_data['password'])
+
+            user_data_to_create = {
+                'first_name': user_data['first_name'],
+                'last_name': user_data['last_name'],
+                'email': user_data['email'],
+                'password': hashed_pw
+            }
+
+            new_user = facade.create_user(user_data_to_create)
+
         except (TypeError, ValueError) as e:
             return {"error": str(e)}, 400
 
         return {
-            'id': new_user.id,
-            'first_name': new_user.first_name,
-            'last_name': new_user.last_name,
-            'email': new_user.email
+            'id': new_user.id, 'first_name': new_user.first_name, 
+            'last_name': new_user.last_name, 'email': new_user.email
         }, 201
+
 
     @api.response(200, "Users retrieved successfully")
     def get(self):
@@ -95,6 +106,7 @@ class UserResource(Resource):
 
         return {'id': user.id, 'first_name': user.first_name,
                 'last_name': user.last_name, 'email': user.email}, 200
+
 
     @api.expect(user_model, validate=True)
     @api.response(200, "User updated successfully")
