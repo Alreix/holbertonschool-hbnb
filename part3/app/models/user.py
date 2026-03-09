@@ -13,7 +13,7 @@ class User(BaseModel):
     # Simple email pattern for common cases
     EMAIL_PATTERN = r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
 
-    def __init__(self, first_name, last_name, email, is_admin=False):
+    def __init__(self, first_name, last_name, email, is_admin=False, password):
         """Initialize a user instance with validated fields.
 
         Args:
@@ -32,6 +32,29 @@ class User(BaseModel):
         self.last_name = self.validate_last_name(last_name)
         self.email = self.validate_email(email)
         self.is_admin = self.validate_is_admin(is_admin)
+        self.password = hash_password(password)
+
+    def hash_password(password):
+        """Hash the password using bcrypt.
+
+        Args:
+            password (str): Plain text password.
+
+        Returns:
+            str: Hashed password.
+        """
+        return bcrypt.generate_password_hash(password).decode('utf-8')
+
+    def verify_password(self, password):
+        """Verify the provided password against the hashed password.
+
+        Args:
+            password (str): Plain text password.
+
+        Returns:
+            bool: True if the password is correct, False otherwise.
+        """
+        return bcrypt.check_password_hash(self.password, password)
 
     def validate_first_name(self, value):
         """Validate first-name rules.
