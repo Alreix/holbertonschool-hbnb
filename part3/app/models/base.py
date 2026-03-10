@@ -5,6 +5,7 @@ This module provides the common base entity used by domain models.
 
 import uuid
 from datetime import datetime
+from app import db
 
 
 class BaseModel:
@@ -12,9 +13,10 @@ class BaseModel:
 
     def __init__(self):
         """Initialize a new base entity state."""
-        self.id = str(uuid.uuid4())
-        self.created_at = datetime.now()
-        self.updated_at = datetime.now()
+        __abstract__ = True
+        id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+        created_at = db.Column(db.DateTime, default=datetime.utcnow)
+        updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def save(self):
         """Refresh the update timestamp after a mutation."""
