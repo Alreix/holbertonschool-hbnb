@@ -259,8 +259,8 @@ class HBnBFacade:
         if review is None:
             return None
 
-    self.review_repo.update(review_id, review_data)
-    return self.get_review(review_id)
+        self.review_repo.update(review_id, review_data)
+        return self.get_review(review_id)
 
     def delete_review(self, review_id):
         """Delete a review and clean its reference from the place.
