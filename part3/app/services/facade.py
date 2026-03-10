@@ -19,6 +19,7 @@ from app.models.user import User
 from app.models.amenity import AmenityModel
 from app.models.place import Place
 from app.models.review import Review
+from app.persistence.repository import SQLAlchemyRepository
 
 
 class HBnBFacade:
@@ -42,10 +43,10 @@ class HBnBFacade:
             storage-agnostic and can later be wired to a database-backed layer
             without changing its public interface.
         """
-        self.user_repo = InMemoryRepository()
-        self.place_repo = InMemoryRepository()
-        self.review_repo = InMemoryRepository()
-        self.amenity_repo = InMemoryRepository()
+        self.user_repo = SQLAlchemyRepository(User)
+        self.place_repository = SQLAlchemyRepository(Place)
+        self.review_repository = SQLAlchemyRepository(Review)
+        self.amenity_repository = SQLAlchemyRepository(AmenityModel)
 
     # ---------------------------------------------------------------------
     # Users
