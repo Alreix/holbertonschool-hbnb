@@ -44,9 +44,9 @@ class HBnBFacade:
             without changing its public interface.
         """
         self.user_repo = SQLAlchemyRepository(User)
-        self.place_repository = SQLAlchemyRepository(Place)
-        self.review_repository = SQLAlchemyRepository(Review)
-        self.amenity_repository = SQLAlchemyRepository(AmenityModel)
+        self.place_repo = SQLAlchemyRepository(Place)
+        self.review_repo = SQLAlchemyRepository(Review)
+        self.amenity_repo = SQLAlchemyRepository(AmenityModel)
 
     # ---------------------------------------------------------------------
     # Users
