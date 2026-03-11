@@ -4,13 +4,6 @@ This module provides the common base entity used by domain models.
 """
 
 import uuid
-from datetime import datetime
-from app import db
-
-
-class BaseModel(db.Model):
-    """Represent a base entity with UUID and timestamps."""
-    import uuid
 from datetime import datetime, UTC
 from app import db
 

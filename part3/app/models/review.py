@@ -4,13 +4,27 @@ This module provides the review entity and its validation helpers.
 """
 
 
-from .base import BaseModel
-from .place import Place
-from .user import User
+from app import db
+from app.models.base import BaseModel
 
 
 class Review(BaseModel):
     """Represent a review written by a user for a place."""
+
+    __tablename__ = 'reviews'
+
+    text = db.Column(db.String(1024), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
+
+    user_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
+    place_id = db.Column(db.String(36), db.ForeignKey("places.id"), nullable=False)
+
+    user = db.relationship("User", backref=db.backref("reviews", lazy=True))
+    place = db.relationship("Place", backref=db.backref("reviews", lazy=True))
+
+    __table_args__ = (
+        db.UniqueConstraint("user_id", "place_id", name="unique_user_place_review"),
+    )
 
     def __init__(self, text, rating, place, user):
         """Initialize a review instance with validated fields."""
