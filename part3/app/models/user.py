@@ -34,7 +34,6 @@ class User(BaseModel):
         'Review',
         backref='author',
         lazy=True,
-        cascade='all, delete-orphan'
     )
 
     def __init__(self, first_name, last_name, email, password, is_admin=False):
