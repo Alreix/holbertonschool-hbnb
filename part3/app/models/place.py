@@ -24,6 +24,35 @@ class Place(BaseModel):
         reviews (list): List of associated reviews.
         amenities (list): List of associated amenities.
     """
+    __tablename__ = 'places'
+
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(1000), default="")
+    price = db.Column(db.Float, nullable=False)
+    latitude = db.Column(db.Float, nullable=False)
+    longitude = db.Column(db.Float, nullable=False)
+
+    # Relationships with user, place and review
+
+    # Foreign key to user
+    user_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
+
+    # One-to-many: place -> review
+    reviews = db.relationship(
+        'Review',
+        backref='place',
+        lazy=True,
+        cascade='all, delete-orphan'
+    )
+
+    # Many-to-many: place <-> amenity
+    amenities = db.relationship(
+        'AmenityModel',
+        secondary=place_amenity,
+        lazy='subquery',
+        backref=db.backref('places', lazy=True)
+    )
+
     def __init__(self, title, description, price, latitude, longitude, owner):
         """Initialize a place instance with validated attributes.
 
@@ -39,7 +68,6 @@ class Place(BaseModel):
             TypeError: If a value has an invalid type.
             ValueError: If a value does not meet validation rules.
         """
-        super().__init__()
 
         self.title = self.validate_title(title)
         self.description = self.validate_description(description)
@@ -51,26 +79,6 @@ class Place(BaseModel):
         self.reviews = []
         self.amenities = []
 
-        # Relationships with user, place and review
-
-        # Foreign key to user
-        user_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
-
-        # One-to-many: place -> review
-        reviews = db.relationship(
-            'Review',
-            backref='place',
-            lazy=True,
-            cascade='all, delete-orphan'
-        )
-
-        # Many-to-many: place <-> amenity
-        amenities = db.relationship(
-            'AmenityModel',
-            secondary=place_amenity,
-            lazy='subquery',
-            backref=db.backref('places', lazy=True)
-        )
 
     def validate_title(self, value):
         """Validate the place title value.
