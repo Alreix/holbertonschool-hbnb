@@ -1,6 +1,6 @@
 """Amenity domain model.
 
-This module defines `AmenityModel`, an entity representing a feature or
+This module defines `Amenity`, an entity representing a feature or
 service that can be attached to places.
 """
 
@@ -13,7 +13,7 @@ place_amenity = db.Table(
     db.Column('amenity_id', db.String(36), db.ForeignKey('amenities.id'), primary_key=True)
 )
 
-class AmenityModel(BaseModel):
+class Amenity(BaseModel):
     """Amenity entity that can be linked to places.
 
     Attributes:
