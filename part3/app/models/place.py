@@ -56,7 +56,7 @@ class Place(BaseModel):
         # Foreign key to user
         user_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
 
-        # One-to-many: Place -> Review
+        # One-to-many: place -> review
         reviews = db.relationship(
             'Review',
             backref='place',
@@ -64,7 +64,7 @@ class Place(BaseModel):
             cascade='all, delete-orphan'
         )
 
-        # Many-to-many: Place <-> Amenity
+        # Many-to-many: place <-> amenity
         amenities = db.relationship(
             'AmenityModel',
             secondary=place_amenity,
