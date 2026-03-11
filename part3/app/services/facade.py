@@ -170,7 +170,17 @@ class HBnBFacade:
 
     def create_place(self, place_data):
         """Create a new place."""
-        place = Place(**place_data)
+        data = dict(place_data)
+        amenity_ids = data.pop("amenities", [])
+
+        place = Place(**data)
+
+        for amenity_id in amenity_ids:
+            amenity = self.amenity_repo.get(amenity_id)
+            if amenity is None:
+                raise ValueError(f"Amenity not found: {amenity_id}")
+            place.amenities.append(amenity)
+
         self.place_repo.add(place)
         return place
 
@@ -199,7 +209,22 @@ class HBnBFacade:
         if place is None:
             return None
 
-        self.place_repo.update(place_id, place_data)
+        data = dict(place_data)
+        amenity_ids = data.pop("amenities", None)
+
+        if data:
+            self.place_repo.update(place_id, data)
+
+        if amenity_ids is not None:
+            amenities = []
+            for amenity_id in amenity_ids:
+                amenity = self.amenity_repo.get(amenity_id)
+                if amenity is None:
+                    raise ValueError(f"Amenity not found: {amenity_id}")
+                amenities.append(amenity)
+            place.amenities = amenities
+            place.save()
+
         return self.get_place(place_id)
 
     # ---------------------------------------------------------------------
@@ -232,26 +257,18 @@ class HBnBFacade:
         return self.review_repo.get_all()
 
     def get_reviews_by_place(self, place_id):
-        """Return reviews for a given place in serialized form.
+        """Return reviews for a given place.
 
         Args:
             place_id (str): Place identifier.
 
         Returns:
-            list[dict] | None: List `[{id, text, rating}, ...]`, or `None`
-            if the place does not exist.
+            list[Review] | None: Reviews list, or `None` if place not found.
         """
         place = self.place_repo.get(place_id)
         if place is None:
             return None
-
-        review_ids = getattr(place, "reviews", []) or []
-        out = []
-        for rid in review_ids:
-            r = self.review_repo.get(rid)
-            if r:
-                out.append({"id": r.id, "text": r.text, "rating": r.rating})
-        return out
+        return list(place.reviews or [])
 
     def update_review(self, review_id, review_data):
         """Update an existing review."""
@@ -263,7 +280,7 @@ class HBnBFacade:
         return self.get_review(review_id)
 
     def delete_review(self, review_id):
-        """Delete a review and clean its reference from the place.
+        """Delete a review.
 
         Args:
             review_id (str): Identifier of the review to delete.
@@ -274,12 +291,6 @@ class HBnBFacade:
         review = self.review_repo.get(review_id)
         if review is None:
             return False
-
-        place = review.place
-        if place and getattr(place, "reviews", None):
-            if review_id in place.reviews:
-                place.reviews.remove(review_id)
-                place.save()
 
         self.review_repo.delete(review_id)
         return True

@@ -15,23 +15,20 @@ class Review(BaseModel):
     text = db.Column(db.String(1024), nullable=False)
     rating = db.Column(db.Integer, nullable=False)
 
-    user_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
+    owner_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
     place_id = db.Column(db.String(36), db.ForeignKey("places.id"), nullable=False)
 
-    user = db.relationship("User", backref=db.backref("reviews", lazy=True))
-    place = db.relationship("Place", backref=db.backref("reviews", lazy=True))
-
     __table_args__ = (
-        db.UniqueConstraint("user_id", "place_id", name="unique_user_place_review"),
+        db.UniqueConstraint("owner_id", "place_id", name="unique_owner_place_review"),
     )
 
-    def __init__(self, text, rating, place_id, user_id):
+    def __init__(self, text, rating, place_id, owner_id):
         """Initialize a review instance with validated fields."""
         super().__init__()
         self.text = self.validate_text(text)
         self.rating = self.validate_rating(rating)
-        self.place_id = place_id
-        self.user_id = user_id
+        self.place_id = self.validate_fk_id(place_id, "place_id")
+        self.owner_id = self.validate_fk_id(owner_id, "owner_id")
 
     def validate_text(self, value):
         """Validate the review text value."""

@@ -39,11 +39,6 @@ place_update_model = api.model('PlaceUpdate', {
     'amenities': fields.List(fields.String, description="List of amenities ID's")
 })
 
-def _owner_id(owner):
-    """Return owner id from either a user object or an id string."""
-    return owner.id if hasattr(owner, "id") else owner
-
-
 def _serialize_place_list_item(place):
     """Serialize place for list/create responses with id references."""
     return {
@@ -53,14 +48,14 @@ def _serialize_place_list_item(place):
         'price': place.price,
         'latitude': place.latitude,
         'longitude': place.longitude,
-        'owner_id': _owner_id(place.owner),
+        'owner_id': place.owner_id,
         'amenities': [a.id for a in (place.amenities or [])],
     }
 
 
 def _serialize_place_detail(place):
     """Serialize place details with expanded owner and amenities."""
-    owner = place.owner if hasattr(place.owner, "id") else facade.get_user(place.owner)
+    owner = place.owner if hasattr(place, "owner") else facade.get_user(place.owner_id)
     owner_payload = None
     if owner:
         owner_payload = {
@@ -147,13 +142,13 @@ class PlaceResource(Resource):
         current_user = get_jwt_identity()
         claims = get_jwt()
         is_admin = claims.get('is_admin', False)
-        user_id = claims.get('id')
+        user_id = claims.get('id', current_user)
 
         place = facade.get_place(place_id)
         if place is None:
             return {"error": "Place not found"}, 404
 
-        owner_id = place.owner.id if hassattr(place.owner, "id") else place.owner
+        owner_id = place.owner_id
 
         if not is_admin and owner_id != user_id:
             return {"error": "Unauthorized action"}, 403
@@ -188,4 +183,13 @@ class PlaceReviewList(Resource):
         reviews = facade.get_reviews_by_place(place_id)
         if reviews is None:
             return {"error": "Place not found"}, 404
-        return reviews, 200
+        return [
+            {
+                "id": r.id,
+                "text": r.text,
+                "rating": r.rating,
+                "owner_id": r.owner_id,
+                "place_id": r.place_id,
+            }
+            for r in reviews
+        ], 200

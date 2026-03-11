@@ -44,14 +44,13 @@ class ReviewList(Resource):
         if not current_user:
             return {"error": "User not found"}, 404
 
-        owner_id = place.owner.id if hasattr(place.owner, "id") else place.owner
+        owner_id = place.owner_id
         if owner_id == current_user_id:
             return {"error": "You cannot review your own place."}, 400
 
         reviews = facade.get_reviews_by_place(review_data["place_id"])
         for r in reviews:
-            review_user_id = r.user.id if hasattr(r.user, "id") else r.user
-            if review_user_id == current_user_id:
+            if r.owner_id == current_user_id:
                 return {"error": "You have already reviewed this place."}, 400
 
         try:
@@ -59,7 +58,7 @@ class ReviewList(Resource):
                 "text": review_data["text"],
                 "rating": review_data["rating"],
                 "place_id": review_data["place_id"],
-                "user_id": current_user_id
+                "owner_id": current_user_id
             }
             new_review = facade.create_review(review_data_to_create)
 
@@ -70,8 +69,8 @@ class ReviewList(Resource):
             "id": new_review.id,
             "text": new_review.text,
             "rating": new_review.rating,
-            "user_id": new_review.user.id if hasattr(new_review.user, "id") else new_review.user,
-            "place_id": new_review.place.id if hasattr(new_review.place, "id") else new_review.place
+            "owner_id": new_review.owner_id,
+            "place_id": new_review.place_id
         }, 201
 
     @api.response(200, "List of reviews retrieved successfully")
@@ -117,8 +116,8 @@ class ReviewResource(Resource):
             "id": existing_review.id,
             "text": existing_review.text,
             "rating": existing_review.rating,
-            "user_id": existing_review.user.id if hasattr(existing_review.user, "id") else existing_review.user,
-            "place_id": existing_review.place.id if hasattr(existing_review.place, "id") else existing_review.place
+            "owner_id": existing_review.owner_id,
+            "place_id": existing_review.place_id
         }, 200
 
     @api.expect(review_model)
@@ -147,11 +146,7 @@ class ReviewResource(Resource):
         if not existing_review:
             return {"error": "Review not found"}, 404
 
-        review_user_id = (
-            existing_review.user.id
-            if hasattr(existing_review.user, "id")
-            else existing_review.user
-        )
+        review_user_id = existing_review.owner_id
 
         if review_user_id != current_user_id and not is_admin:
             return {"error": "Unauthorized action"}, 403
@@ -200,11 +195,7 @@ class ReviewResource(Resource):
         if not existing_review:
             return {"error": "Review not found"}, 404
 
-        review_user_id = (
-            existing_review.user.id
-            if hasattr(existing_review.user, "id")
-            else existing_review.user
-        )
+        review_user_id = existing_review.owner_id
 
         if review_user_id != current_user_id and not is_admin:
             return {"error": "Unauthorized action"}, 403

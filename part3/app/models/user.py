@@ -32,7 +32,7 @@ class User(BaseModel):
 
     reviews = db.relationship(
         'Review',
-        backref='author',
+        backref='owner',
         lazy=True,
     )
 
