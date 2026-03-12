@@ -1,14 +1,15 @@
 -- Create places table
 CREATE TABLE IF NOT EXISTS places (
-    id CHAR(36) PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
+    id TEXT PRIMARY KEY,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    title TEXT NOT NULL,
     description TEXT,
-    price DECIMAL(10, 2) NOT NULL,
-    latitude FLOAT,
-    longitude FLOAT,
-    owner_id CHAR(36) NOT NULL,
+    price REAL NOT NULL,
+    latitude REAL,
+    longitude REAL,
+    owner_id TEXT NOT NULL,
     CONSTRAINT fk_places_owner
         FOREIGN KEY (owner_id) REFERENCES users(id)
-        ON UPDATE CASCADE
         ON DELETE CASCADE
 );

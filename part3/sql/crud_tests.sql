@@ -17,7 +17,7 @@ VALUES (
     '36c9050e-ddd3-4c3b-9731-9f487208bbc1'
 );
 
-INSERT INTO reviews (id, text, rating, user_id, place_id)
+INSERT INTO reviews (id, text, rating, owner_id, place_id)
 VALUES (
     '97cb86db-18f7-4698-8976-26872f62f8ca',
     'Great stay',
@@ -39,7 +39,7 @@ LEFT JOIN place_amenity pa ON pa.place_id = p.id
 LEFT JOIN amenities a ON a.id = pa.amenity_id
 WHERE p.id = '5be7d947-f95f-4b9f-a34f-f6f11f0dbf39';
 
-SELECT r.id, r.text, r.rating, r.user_id, r.place_id
+SELECT r.id, r.text, r.rating, r.owner_id, r.place_id
 FROM reviews r
 WHERE r.place_id = '5be7d947-f95f-4b9f-a34f-f6f11f0dbf39';
 
@@ -64,12 +64,12 @@ WHERE id = '97cb86db-18f7-4698-8976-26872f62f8ca';
 
 -- ========== CONSTRAINT CHECKS (expected errors if executed) ==========
 -- Duplicate review for same user/place should fail:
--- INSERT INTO reviews (id, text, rating, user_id, place_id)
+-- INSERT INTO reviews (id, text, rating, owner_id, place_id)
 -- VALUES ('e5667cc4-9adb-4042-85c7-df9bf4c1e4b7', 'Second review same user/place', 3,
 --         '36c9050e-ddd3-4c3b-9731-9f487208bbc1', '5be7d947-f95f-4b9f-a34f-f6f11f0dbf39');
 
 -- Rating out of range should fail:
--- INSERT INTO reviews (id, text, rating, user_id, place_id)
+-- INSERT INTO reviews (id, text, rating, owner_id, place_id)
 -- VALUES ('8cdfd21b-5f06-43ec-ae8e-eb8b7a85f4fd', 'Invalid rating', 6,
 --         '36c9050e-ddd3-4c3b-9731-9f487208bbc1', '5be7d947-f95f-4b9f-a34f-f6f11f0dbf39');
 
