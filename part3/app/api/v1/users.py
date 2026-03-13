@@ -7,7 +7,7 @@ and update users.
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
 from app import bcrypt
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 
 api = Namespace('users', description='User operations')
 
@@ -141,7 +141,10 @@ class UserResource(Resource):
             tuple[dict, int]: Error payload and HTTP 404/400 status.
         """
         current_user_id = get_jwt_identity()
-        if current_user_id != user_id:
+        claims = get_jwt()
+        is_admin = claims.get('is_admin', False)
+
+        if user_id != current_user_id and not is_admin:
             return {"error": "Unauthorized action"}, 403
 
         user = facade.get_user(user_id)
