@@ -20,7 +20,7 @@ user_model = api.model('User', {
     'email': fields.String(required=True,
                            description='Email of the user'),
     'password': fields.String(required=True, description='Password of the user'),
-    'is_admin': fields.Boolean(required=False)
+    'is_admin': fields.Boolean(required=False, description='Role of the user')
 })
 
 user_update_model = api.model('UserUpdate', {
@@ -59,7 +59,7 @@ class UserList(Resource):
                 'last_name': user_data['last_name'],
                 'email': user_data['email'],
                 'password': user_data['password'],
-                'is_admin': user_data['admin']
+                'is_admin': user_data.get('is_admin', False)
             }
 
             new_user = facade.create_user(user_data_to_create)
@@ -68,8 +68,11 @@ class UserList(Resource):
             return {"error": str(e)}, 400
 
         return {
-            'id': new_user.id, 'first_name': new_user.first_name, 
-            'last_name': new_user.last_name, 'email': new_user.email
+            'id': new_user.id, 
+            'first_name': new_user.first_name, 
+            'last_name': new_user.last_name, 
+            'email': new_user.email,
+            'is_admin': new_user.is_admin
         }, 201
 
 
@@ -87,6 +90,7 @@ class UserList(Resource):
                 "first_name": u.first_name,
                 "last_name": u.last_name,
                 "email": u.email,
+                "is_admin": u.is_admin,
             }
             for u in users
         ], 200
@@ -112,8 +116,11 @@ class UserResource(Resource):
         if not user:
             return {'error': 'User not found'}, 404
 
-        return {'id': user.id, 'first_name': user.first_name,
-                'last_name': user.last_name, 'email': user.email}, 200
+        return {'id': user.id, 
+                'first_name': user.first_name,
+                'last_name': user.last_name, 
+                'email': user.email,
+                'is_admin': user.is_admin}, 200
 
 
     @api.expect(user_update_model, validate=True)
