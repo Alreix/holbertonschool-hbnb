@@ -27,7 +27,13 @@ user_update_model = api.model('UserUpdate', {
     'first_name': fields.String(required=False,
                                 description='First name of the user'),
     'last_name': fields.String(required=False,
-                               description='Last name of the user')
+                               description='Last name of the user'),
+    'email': fields.String(required=False,
+                           description='Email of the user'),
+    'password': fields.String(required=False,
+                              description='Password of the user'),
+    'is_admin': fields.Boolean(required=False,
+                               description='Admin status of the user')
 })
 
 
@@ -156,12 +162,9 @@ class UserResource(Resource):
         if not user_data:
             return {"error": "Invalid input data"}, 400
 
-        allowed_fields = {"first_name", "last_name"}
+        allowed_fields = {"first_name", "last_name", "email", "password", "is_admin"} if is_admin else {"first_name", "last_name"}
         if not any(field in user_data for field in allowed_fields):
             return {"error": "Invalid input data"}, 400
-
-        if "email" in user_data or "password" in user_data:
-            return {"error": "You cannot modify email or password."}, 400
 
         try:
             updated_user = facade.update_user(user_id, user_data)
@@ -175,5 +178,6 @@ class UserResource(Resource):
             "id": updated_user.id,
             "first_name": updated_user.first_name,
             "last_name": updated_user.last_name,
-            "email": updated_user.email
+            "email": updated_user.email,
+            "is_admin": updated_user.is_admin
         }, 200
