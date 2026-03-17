@@ -1,18 +1,27 @@
 """Amenity domain model.
 
-This module defines `AmenityModel`, an entity representing a feature or
+This module defines `Amenity`, an entity representing a feature or
 service that can be attached to places.
 """
 
 from .base import BaseModel
+from app import db
 
+place_amenity = db.Table(
+    'place_amenity',
+    db.Column('place_id', db.String(36), db.ForeignKey('places.id'), primary_key=True),
+    db.Column('amenity_id', db.String(36), db.ForeignKey('amenities.id'), primary_key=True)
+)
 
-class AmenityModel(BaseModel):
+class Amenity(BaseModel):
     """Amenity entity that can be linked to places.
 
     Attributes:
         name (str): Human-readable amenity name.
     """
+
+    __tablename__ = 'amenities'
+    name = db.Column(db.String(100), nullable=False, unique=True)
 
     def __init__(self, name):
         """Initialize an amenity instance.
@@ -26,7 +35,7 @@ class AmenityModel(BaseModel):
         super().__init__()
         self.name = self.validate_name(name)
 
-    # Validation helpers
+    # Validation helpers.
     def validate_name(self, name):
         """Validate and normalize the amenity name.
 
@@ -49,7 +58,7 @@ class AmenityModel(BaseModel):
 
         return name
 
-    # Mutation methods
+    # Mutation methods.
     def update(self, data):
         """Update allowed amenity attributes and persist changes.
 

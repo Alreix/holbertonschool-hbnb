@@ -4,21 +4,36 @@ This module provides the common base entity used by domain models.
 """
 
 import uuid
-from datetime import datetime
+from datetime import datetime, UTC
+from app import db
 
 
-class BaseModel:
+class BaseModel(db.Model):
     """Represent a base entity with UUID and timestamps."""
 
-    def __init__(self):
-        """Initialize a new base entity state."""
-        self.id = str(uuid.uuid4())
-        self.created_at = datetime.now()
-        self.updated_at = datetime.now()
+    __abstract__ = True
+
+    id = db.Column(
+        db.String(36),
+        primary_key=True,
+        default=lambda: str(uuid.uuid4())
+    )
+    created_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(UTC),
+        nullable=False
+    )
+    updated_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+        nullable=False
+    )
 
     def save(self):
-        """Refresh the update timestamp after a mutation."""
-        self.updated_at = datetime.now()
+        """Persist the current object."""
+        db.session.add(self)
+        db.session.commit()
 
     def update(self, data):
         """Update existing attributes from a mapping.
@@ -29,4 +44,3 @@ class BaseModel:
         for key, value in data.items():
             if hasattr(self, key):
                 setattr(self, key, value)
-        self.save()
