@@ -438,6 +438,6 @@ The application is designed to be extensible, with clear separation between API,
 
 ## Authors
 
-- **Morgane** - Holberton Student - [GitHub Profile](https://github.com/your-github-Alreix)
+- **Morgane** - Holberton Student - [GitHub Profile](https://github.com/Alreix)
 - **Joan** - Holberton Student - [GitHub Profile](https://github.com/frxjoan)
-- **Bengin** - Holberton Student - []
+- **Bengin** - Holberton Student - [Github Profile](https://github.com/Bengin05)
