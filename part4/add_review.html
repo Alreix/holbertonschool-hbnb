@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Review</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/png" href="./images/icon.png">
+</head>
+<body>
+<!-- ============================================ -->
+<!-- HEADER SECTION -->
+<!-- ============================================ -->
+    <header>
+        <img src="./images/logo.png" alt="HBnB Logo" class="logo">
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="login.html" class="login-button">Login</a>
+        </nav>
+    </header>
+
+<!-- ============================================ -->
+<!-- MAIN CONTENT SECTION -->
+<!-- ============================================ -->
+    <main>
+        <h1>Add a Review</h1>
+        <p>Place: Beautiful Beach House</p>
+
+        <form id="review-form">
+            <label for="review">Your Review:</label>
+            <textarea id="review" name="review" required></textarea>
+
+            <label for="rating">Rating:</label>
+            <select id="rating" name="rating" required>
+                <option value="">Select a rating</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+
+            <button type="submit">Submit Review</button>
+        </form>
+    </main>
+
+<!-- JavaScript files -->
+    <script src="scripts.js"></script>
+
+<!-- ============================================ -->
+<!-- FOOTER SECTION -->
+<!-- ============================================ -->
+    <footer>
+        <p>© 2026 HBnB. All rights reserved.</p>
+    </footer>
+</body>
+</html>
