@@ -1,0 +1,190 @@
+/* =========================================== */
+/* ============== GLOBAL STYLES ============== */
+/* =========================================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f7f7f7;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* =========================================== */
+/* =============== HEADER STYLES ============= */
+/* =========================================== */
+header {
+    background-color: #ff5a5f;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+}
+
+.logo {
+    height: 50px;
+    width: auto;
+}
+
+nav {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+nav a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.login-button {
+    background-color: white;
+    color: #ff5a5f;
+    padding: 8px 14px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* =========================================== */
+/* ============== MAIN SECTION ================ */
+/* =========================================== */
+main {
+    flex: 1;
+    padding: 2rem;
+}
+
+/* =========================================== */
+/* ============= TITLE / H1 / H2 ============= */
+/* =========================================== */
+h1 {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+h2 {
+    margin-bottom: 15px;
+}
+
+/* =========================================== */
+/* ============= FILTRE / SELECT ============= */
+/* =========================================== */
+#filter {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+#price-filter,
+#rating,
+input,
+textarea {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+/* =========================================== */
+/* ============== LIST OF PLACE ============== */
+/* =========================================== */
+#places-list {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.place-card {
+    background-color: white;
+    width: 250px;
+    margin: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.details-button {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 16px;
+    background-color: #ff5a5f;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.place-details {
+    background-color: white;
+    margin: 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+}
+
+.place-info p {
+    margin-bottom: 10px;
+}
+
+#reviews {
+    margin-top: 30px;
+}
+
+.review-card {
+    background-color: white;
+    margin: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+}
+
+.add-review {
+    text-align: center;
+    margin-top: 20px;
+}
+
+form {
+    background-color: white;
+    max-width: 500px;
+    margin: 30px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+button {
+    background-color: #ff5a5f;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* =========================================== */
+/* ================ FOOTER =================== */
+/* =========================================== */
+
+footer {
+    background-color: #222;
+    color: white;
+    text-align: center;
+    padding: 15px;
+}
