@@ -8,50 +8,93 @@
     font-family: Arial, sans-serif;
 }
 
+:root {
+    --bg-main: #f7f7fb;
+    --bg-card: #ffffff;
+    --bg-soft: #f3f4f8;
+    --text-main: #222222;
+    --text-soft: #6b7280;
+    --border: #ddd;
+    --accent: #ff5a5f;
+    --accent-hover: #e14b50;
+    --accent-soft: #fff1f2;
+    --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.06);
+    --shadow-hover: 0 18px 40px rgba(15, 23, 42, 0.12);
+    --radius-sm: 8px;
+    --radius-md: 10px;
+    --radius-lg: 18px;
+}
+
 body {
-    background-color: #f7f7f7;
-    color: #333;
+    background:
+        radial-gradient(circle at top left, #fff5f5 0%, transparent 28%),
+        radial-gradient(circle at top right, #f3f4ff 0%, transparent 22%),
+        var(--bg-main);
+    color: var(--text-main);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    line-height: 1.5;
 }
 
 /* =========================================== */
 /* =============== HEADER STYLES ============= */
 /* =========================================== */
 header {
-    background-color: #ff5a5f;
+    background: linear-gradient(135deg, #ff5a5f 0%, #ff7a59 100%);
     color: white;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 30px;
+    padding: 18px 32px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 24px rgba(255, 90, 95, 0.18);
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
-
 .logo {
-    height: 50px;
+    height: 48px;
     width: auto;
 }
 
 nav {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 14px;
 }
 
 nav a {
-    color: #fff;
+    color: white;
     text-decoration: none;
-    font-weight: bold;
+    font-weight: 600;
+    font-size: 0.98rem;
+}
+
+nav a:hover {
+    color: #fff5f5;
 }
 
 .login-button {
-    background-color: white;
-    color: #ff5a5f;
-    padding: 8px 14px;
-    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.16);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 999px;
     text-decoration: none;
-    font-weight: bold;
+    font-weight: 700;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    box-shadow: none;
+    transition: none;
+}
+
+.login-button:hover {
+    background-color: rgba(255, 255, 255, 0.22);
+    color: white;
+}
+
+.login-button:active {
+    background-color: rgba(255, 255, 255, 0.18);
+    color: white;
 }
 
 /* =========================================== */
@@ -59,37 +102,102 @@ nav a {
 /* =========================================== */
 main {
     flex: 1;
-    padding: 2rem;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 3rem;
 }
 
 /* =========================================== */
 /* ============= TITLE / H1 / H2 ============= */
 /* =========================================== */
 h1 {
-    margin-bottom: 20px;
+    margin-bottom: 12px;
     text-align: center;
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: #18181b;
 }
 
 h2 {
     margin-bottom: 15px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+main > p {
+    text-align: center;
+    color: var(--text-soft);
+    margin-bottom: 24px;
+    font-size: 1rem;
 }
 
 /* =========================================== */
 /* ============= FILTRE / SELECT ============= */
 /* =========================================== */
 #filter {
-    margin-bottom: 30px;
+    width: fit-content;
+    min-width: 360px;
+    margin: 0 auto 36px;
+    padding: 14px 20px;
+    background-color: rgba(255, 255, 255, 0.92);
+    border: 1px solid #ececec;
+    border-radius: 999px;
+    box-shadow: var(--shadow-soft);
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+}
+
+#filter label {
+    font-weight: 600;
+    color: #374151;
 }
 
 #price-filter,
 #rating,
 input,
 textarea {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #d7dbe3;
+    border-radius: 12px;
     font-size: 1rem;
+    background-color: #fff;
+    color: var(--text-main);
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+#price-filter,
+#rating {
+    appearance: none;
+    background-image:
+        linear-gradient(45deg, transparent 50%, #6b7280 50%),
+        linear-gradient(135deg, #6b7280 50%, transparent 50%);
+    background-position:
+        calc(100% - 18px) calc(50% - 3px),
+        calc(100% - 12px) calc(50% - 3px);
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+    padding-right: 38px;
+}
+
+#price-filter {
+    min-width: 220px;
+}
+
+#price-filter:focus,
+#rating:focus,
+input:focus,
+textarea:focus {
+    border-color: #e0b5b7;
+    box-shadow: 0 0 0 4px rgba(179, 160, 161, 0.14);
+    background-color: #fffdfd;
 }
 
 /* =========================================== */
@@ -99,92 +207,270 @@ textarea {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
+    gap: 0;
 }
 
 .place-card {
-    background-color: white;
-    width: 250px;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfbfd 100%);
+    width: 310px;
+    min-height: 190px;
     margin: 20px;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 10px;
-    text-align: center;
+    box-shadow: var(--shadow-soft);
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.details-button {
-    display: inline-block;
-    margin-top: 15px;
-    padding: 10px 16px;
-    background-color: #ff5a5f;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    font-weight: bold;
+/* Placeholder a remplacer par l'image sur les place card*/
+.place-card::before {
+    content: "";
+    display: block;
+    height: 120px;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    background:
+        linear-gradient(135deg, rgba(255, 90, 95, 0.18), rgba(255, 180, 162, 0.22)),
+        linear-gradient(180deg, #f8d6d8 0%, #f3f4f8 100%);
 }
 
-.place-details {
-    background-color: white;
-    margin: 20px;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 10px;
+.place-card h2 {
+    font-size: 1.15rem;
+    margin-bottom: 8px;
+    color: #111827;
+}
+
+.place-card p {
+    color: var(--text-soft);
+    font-size: 0.96rem;
+    margin-bottom: 14px;
+}
+
+.place-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-hover);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* =========================================== */
+/* ============== PLACE DETAILS ============== */
+/* =========================================== */
+
+.place-info {
+    display: grid;
+    gap: 12px;
 }
 
 .place-info p {
-    margin-bottom: 10px;
+    margin-bottom: 0;
+    padding: 14px 16px;
+    background-color: #fafafb;
+    border: 1px solid #ececf1;
+    border-radius: 12px;
+    color: #374151;
 }
 
+.place-info strong {
+    color: #111827;
+    margin-right: 6px;
+}
+
+/* =========================================== */
+/* ================= REVIEWS ================= */
+/* =========================================== */
 #reviews {
-    margin-top: 30px;
+    margin-top: 34px;
+}
+
+#reviews h2 {
+    margin-left: 20px;
 }
 
 .review-card {
-    background-color: white;
+    background-color: var(--bg-card);
     margin: 20px;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 10px;
+    box-shadow: var(--shadow-soft);
+    position: relative;
 }
 
+.review-card p:first-child {
+    color: #111827;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.review-card p:nth-child(2) {
+    color: #4b5563;
+    margin-bottom: 8px;
+}
+
+.review-card p:last-child {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+/* =========================================== */
+/* ================ ADD REVIEW =============== */
+/* =========================================== */
 .add-review {
     text-align: center;
-    margin-top: 20px;
+    margin-top: 28px;
 }
 
 form {
-    background-color: white;
-    max-width: 500px;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(250, 250, 252, 1) 100%);
+    max-width: 560px;
     margin: 30px auto;
-    padding: 20px;
+    padding: 28px;
     border: 1px solid #ddd;
     border-radius: 10px;
+    box-shadow: var(--shadow-soft);
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 16px;
+}
+
+form label {
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: -6px;
 }
 
 textarea {
-    min-height: 120px;
+    min-height: 140px;
     resize: vertical;
 }
 
-button {
-    background-color: #ff5a5f;
+/* =========================================== */
+/* ================ BUTTONS ================== */
+/* =========================================== */
+button,
+.details-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #ff5a5f 0%, #ff7b72 100%);
     color: white;
     border: none;
-    padding: 12px;
-    border-radius: 5px;
+    padding: 12px 18px;
+    border-radius: 12px;
     cursor: pointer;
-    font-weight: bold;
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        filter 0.18s ease,
+        background-color 0.18s ease;
+    box-shadow: 0 10px 20px rgba(255, 90, 95, 0.22);
+}
+
+button:hover,
+.details-button:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.02);
+    box-shadow: 0 14px 28px rgba(255, 90, 95, 0.28);
+}
+
+button:active,
+.details-button:active {
+    transform: scale(0.98);
+    box-shadow: 0 8px 16px rgba(255, 90, 95, 0.22);
 }
 
 /* =========================================== */
-/* ================ FOOTER =================== */
+/* ============== FORM LAYOUT TWEAKS ========= */
 /* =========================================== */
+#review-form button,
+#login-form button {
+    margin-top: 4px;
+}
 
+#login-form,
+#review-form {
+    position: relative;
+}
+
+#login-form::before,
+#review-form::before {
+    content: "";
+    display: block;
+    width: 64px;
+    height: 6px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #ff5a5f 0%, #ffb4a2 100%);
+    margin: 0 auto 4px;
+}
+
+/* =========================================== */
+/* ================= FOOTER ================== */
+/* =========================================== */
 footer {
-    background-color: #222;
-    color: white;
+    background: linear-gradient(135deg, #1f2937 0%, #111827 80%);
+    color: #f9fafb;
     text-align: center;
-    padding: 15px;
+    padding: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    font-size: 0.95rem;
+    margin-top: 30px;
+}
+
+/* =========================================== */
+/* ================ RESPONSIVE =============== */
+/* =========================================== */
+@media (max-width: 768px) {
+    header {
+        padding: 16px 18px;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    nav {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    main {
+        padding: 1.5rem 1rem 2.5rem;
+    }
+
+    #filter {
+        width: 100%;
+        border-radius: 18px;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #price-filter,
+    #rating {
+        min-width: 100%;
+    }
+
+    .place-card {
+        width: 100%;
+        max-width: 360px;
+    }
+
+    .place-details,
+    .review-card {
+        margin: 20px 0;
+    }
+
+    #reviews h2 {
+        margin-left: 0;
+    }
+
+    form {
+        padding: 22px 18px;
+    }
 }
