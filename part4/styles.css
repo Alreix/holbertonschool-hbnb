@@ -280,6 +280,15 @@ textarea:focus {
     margin-right: 6px;
 }
 
+.place-details {
+    background-color: var(--bg-card);
+    margin: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: var(--shadow-soft);
+}
+
 /* =========================================== */
 /* ================= REVIEWS ================= */
 /* =========================================== */
