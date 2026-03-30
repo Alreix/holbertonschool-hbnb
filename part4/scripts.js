@@ -1,41 +1,44 @@
 /*
-  Script for login, index page and place details page
+  Task 1, Task 2 and Task 3 - Login, Index and Place Details
+  This script handles:
+  - login form submission
+  - storing the JWT token in a cookie
+  - showing or hiding the login link
+  - fetching places for index.html
+  - filtering places by price
+  - fetching and displaying one place details
+  - fetching and displaying place reviews
+  - showing or hiding the add review section
 */
 
-// Store all fetched places for client-side filtering on index page
-let allPlaces = [];
-
 /**
- * Initialize page behavior when the DOM is fully loaded.
- * This block detects which page is currently open by checking
- * the existence of specific elements in the HTML.
+ * Wait until the HTML page is fully loaded before running the code.
+ * This avoids trying to access elements that are not ready yet.
  */
 document.addEventListener('DOMContentLoaded', () => {
-  // Get elements used on different pages
+  // Elements used on different pages
   const loginForm = document.getElementById('login-form');
   const priceFilter = document.getElementById('price-filter');
   const placeDetailsSection = document.getElementById('place-details');
-  const addReviewSection = document.getElementById('add-review');
 
   /**
    * LOGIN PAGE LOGIC
    * If the login form exists, we are on login.html.
    */
   if (loginForm) {
-    // Listen for form submission
     loginForm.addEventListener('submit', async (event) => {
-      // Prevent normal HTML form submission
+      // Prevent normal form submission and page reload
       event.preventDefault();
 
-      // Read user input values
+      // Get the email and password input fields
       const emailInput = document.getElementById('email');
       const passwordInput = document.getElementById('password');
 
-      // Clean the email and keep the password as typed
+      // Read user input values
       const email = emailInput.value.trim();
       const password = passwordInput.value;
 
-      // Send credentials to the API
+      // Send credentials to the backend
       await loginUser(email, password);
     });
   }
@@ -45,14 +48,14 @@ document.addEventListener('DOMContentLoaded', () => {
    * If the price filter exists, we are on index.html.
    */
   if (priceFilter) {
-    // Show or hide the login link depending on authentication
+    // Show or hide the Login link depending on authentication
     checkAuthentication();
 
-    // Read token from cookies and fetch places
+    // Read the token from cookies and fetch places
     const token = getCookie('token');
     fetchPlaces(token);
 
-    // Filter places when the selected max price changes
+    // Filter visible place cards when the selected price changes
     priceFilter.addEventListener('change', (event) => {
       filterPlacesByPrice(event.target.value);
     });
@@ -66,45 +69,51 @@ document.addEventListener('DOMContentLoaded', () => {
     // Extract the place ID from the URL
     const placeId = getPlaceIdFromURL();
 
-    // Check authentication state for this page and get the token
-    checkAuthentication(placeId);
+    // Check authentication and update UI for this page
+    const token = checkAuthentication(placeId);
 
-    // Fetch place reviews for the current place
-    fetchPlaceReviews(placeId);
+    // Fetch reviews for the current place
+    fetchPlacesReviews(placeId);
   }
 });
 
 /**
- * Perform user login via API and store token in a cookie.
- * On success, redirect the user to index.html.
+ * Send login credentials to the backend login endpoint.
+ * If login succeeds:
+ * - read the returned JSON
+ * - store the JWT token in a cookie
+ * - redirect to index.html
  *
- * @param {string} email
- * @param {string} password
+ * @param {string} email - Email entered by the user
+ * @param {string} password - Password entered by the user
  */
 async function loginUser(email, password) {
   const LOGIN_URL = 'http://127.0.0.1:5000/api/v1/auth/login';
 
   try {
-    // Send credentials to the login endpoint
     const response = await fetch(LOGIN_URL, {
       method: 'POST',
       headers: {
+        // Tell the backend the request body is JSON
         'Content-Type': 'application/json'
       },
+      // Convert the JavaScript object into JSON text
       body: JSON.stringify({ email, password })
     });
 
-    // If login is successful, save the JWT and redirect
     if (response.ok) {
+      // Convert backend JSON response into a JavaScript object
       const data = await response.json();
+
+      // Store the JWT token in a cookie, path=/ makes the cookie available on all pages
       document.cookie = `token=${data.access_token}; path=/`;
+
+      // Redirect after successful login
       window.location.href = 'index.html';
     } else {
-      // Show a basic error message if authentication fails
       alert('Login failed: ' + response.statusText);
     }
   } catch (error) {
-    // Show a generic message if the request fails completely
     alert('An error occurred while logging in.');
     console.error(error);
   }
@@ -112,9 +121,10 @@ async function loginUser(email, password) {
 
 /**
  * Read a cookie value by its name.
+ * This is used to get the JWT token stored after login.
  *
- * @param {string} name
- * @returns {string|null}
+ * @param {string} name - Cookie name to search for
+ * @returns {string|null} The cookie value if found, otherwise null
  */
 function getCookie(name) {
   // Split all cookies into an array
@@ -124,7 +134,7 @@ function getCookie(name) {
   for (let i = 0; i < cookies.length; i += 1) {
     const cookiePair = cookies[i].trim();
 
-    // Return the value if the cookie name matches
+    // If the cookie starts with "name=", return only its value
     if (cookiePair.startsWith(`${name}=`)) {
       return cookiePair.substring(name.length + 1);
     }
@@ -135,20 +145,21 @@ function getCookie(name) {
 }
 
 /**
- * Check authentication state using the JWT token stored in cookies.
- * - On pages with a login link, show or hide it
- * - On place.html, show or hide the add review section
- * - If a placeId is provided, fetch place details with the token
+ * Check if the user is authenticated by looking for the JWT token.
+ * This function can be reused on several pages:
+ * - index.html: show or hide the Login link
+ * - place.html: show or hide the add review section
+ * - place.html: fetch place details if a place ID is provided
  *
- * @param {string|null} placeId
- * @returns {string|null}
+ * @param {string|null} placeId - Current place ID if on place.html
+ * @returns {string|null} The JWT token if found, otherwise null
  */
 function checkAuthentication(placeId = null) {
   const token = getCookie('token');
   const loginLink = document.getElementById('login-link');
   const addReviewSection = document.getElementById('add-review');
 
-  // Show or hide the login link if it exists on the page
+  // Update Login link visibility only if the element exists on the page
   if (loginLink) {
     if (!token) {
       loginLink.style.display = 'block';
@@ -157,7 +168,7 @@ function checkAuthentication(placeId = null) {
     }
   }
 
-  // Show or hide the add review section if it exists on the page
+  // Update Add Review visibility only if the element exists on the page
   if (addReviewSection) {
     if (!token) {
       addReviewSection.style.display = 'none';
@@ -166,7 +177,7 @@ function checkAuthentication(placeId = null) {
     }
   }
 
-  // If we are on place.html and a place ID exists, fetch place details
+  // If we are on place.html and have a place ID, fetch its details
   if (placeId) {
     fetchPlaceDetails(token, placeId);
   }
@@ -176,30 +187,29 @@ function checkAuthentication(placeId = null) {
 }
 
 /**
- * Fetch the list of places from the API for index.html.
- * Includes the JWT token in Authorization if available.
+ * Fetch the list of places from the backend API.
+ * If a token exists, include it in the Authorization header.
  *
- * @param {string|null} token
+ * @param {string|null} token - JWT token if the user is authenticated
  */
 async function fetchPlaces(token) {
-  const PLACE_URL = 'http://127.0.0.1:5000/api/v1/places/';
+  const PLACES_URL = 'http://127.0.0.1:5000/api/v1/places/';
+
   const options = {
     method: 'GET',
     headers: {}
   };
 
-  // Add Authorization header only if the token exists
+  // Include the token only if it exists
   if (token) {
     options.headers.Authorization = `Bearer ${token}`;
   }
 
   try {
-    const response = await fetch(PLACE_URL, options);
+    const response = await fetch(PLACES_URL, options);
 
-    // If the API returns places successfully, display them
     if (response.ok) {
       const places = await response.json();
-      allPlaces = places;
       displayPlaces(places);
     }
   } catch (error) {
@@ -208,27 +218,27 @@ async function fetchPlaces(token) {
 }
 
 /**
- * Display all places dynamically inside #places-list.
+ * Create and display all place cards inside the places list section.
  *
- * @param {Array} places
+ * @param {Array} places - Array of place objects returned by the backend
  */
 function displayPlaces(places) {
   const placesList = document.getElementById('places-list');
 
-  // Prevent errors if the current page does not contain #places-list
+  // Stop if the current page does not contain #places-list
   if (!placesList) {
     return;
   }
 
-  // Remove previous content before adding new cards
+  // Clear the section before adding new cards
   placesList.innerHTML = '';
 
-  // Create one card per place
+  // Loop through each place in the array
   places.forEach((place) => {
     const placeCard = document.createElement('article');
     placeCard.className = 'place-card';
 
-    // Store the price in a custom attribute for filtering later
+    // Save the place price for later filtering
     placeCard.setAttribute('data-price', place.price);
 
     // Fill the card with place data
@@ -239,20 +249,20 @@ function displayPlaces(places) {
       <a href="place.html?id=${place.id}" class="details-button">View Details</a>
     `;
 
-    // Add the card to the places list
+    // Add the new card to the places list section
     placesList.appendChild(placeCard);
   });
 }
 
 /**
- * Filter place cards on index.html according to the selected max price.
+ * Filter the displayed place cards according to the selected max price.
+ * If "all" is selected, all cards stay visible.
  *
- * @param {string} maxPrice
+ * @param {string} maxPrice - Selected value from the price filter
  */
 function filterPlacesByPrice(maxPrice) {
   const placeCards = document.querySelectorAll('.place-card');
 
-  // Check each place card price and show/hide it
   placeCards.forEach((card) => {
     const price = Number(card.getAttribute('data-price'));
 
@@ -265,11 +275,11 @@ function filterPlacesByPrice(maxPrice) {
 }
 
 /**
- * Extract the place ID from the URL query parameters.
+ * Extract the place ID from the URL query string.
  * Example:
- * place.html?id=12345  -> returns "12345"
+ * place.html?id=12345 -> returns "12345"
  *
- * @returns {string|null}
+ * @returns {string|null} The place ID if found, otherwise null
  */
 function getPlaceIdFromURL() {
   const params = new URLSearchParams(window.location.search);
@@ -277,25 +287,20 @@ function getPlaceIdFromURL() {
 }
 
 /**
- * Fetch the details of one place from the API.
- * Includes the JWT token in Authorization if available.
+ * Fetch the details of one place from the backend API.
+ * If a token exists, include it in the Authorization header.
  *
- * @param {string|null} token
- * @param {string|null} placeId
+ * @param {string|null} token - JWT token if the user is authenticated
+ * @param {string} placeId - ID of the place to fetch
  */
 async function fetchPlaceDetails(token, placeId) {
-  // Stop if no place ID exists in the URL
-  if (!placeId) {
-    return;
-  }
-
   const PLACE_DETAILS_URL = `http://127.0.0.1:5000/api/v1/places/${placeId}`;
   const options = {
     method: 'GET',
     headers: {}
   };
 
-  // Add Authorization header only if a token exists
+  // Include the token only if it exists
   if (token) {
     options.headers.Authorization = `Bearer ${token}`;
   }
@@ -303,10 +308,9 @@ async function fetchPlaceDetails(token, placeId) {
   try {
     const response = await fetch(PLACE_DETAILS_URL, options);
 
-    // If the place details are returned correctly, display them
     if (response.ok) {
       const place = await response.json();
-      displayPlaceDetails(place);
+      displayPlacesDetails(place);
     }
   } catch (error) {
     console.error(error);
@@ -314,25 +318,19 @@ async function fetchPlaceDetails(token, placeId) {
 }
 
 /**
- * Fetch the reviews of one place from the API.
+ * Fetch the reviews of one place from the backend API.
  *
- * @param {string|null} placeId
+ * @param {string} placeId - ID of the place whose reviews must be fetched
  */
-async function fetchPlaceReviews(placeId) {
-  // Stop if no place ID exists in the URL
-  if (!placeId) {
-    return;
-  }
-
+async function fetchPlacesReviews(placeId) {
   const REVIEWS_URL = `http://127.0.0.1:5000/api/v1/places/${placeId}/reviews`;
 
   try {
     const response = await fetch(REVIEWS_URL);
 
-    // If the reviews are returned correctly, display them
     if (response.ok) {
       const reviews = await response.json();
-      displayPlaceReviews(reviews);
+      displayPlacesReviews(reviews);
     }
   } catch (error) {
     console.error(error);
@@ -340,55 +338,62 @@ async function fetchPlaceReviews(placeId) {
 }
 
 /**
- * Display detailed information about one place inside #place-details.
- * Shows the title, host, price, description and amenities.
+ * Display the detailed information of one place inside #place-details.
  *
- * @param {Object} place
+ * @param {Object} place - Place details returned by the backend
  */
-function displayPlaceDetails(place) {
+function displayPlacesDetails(place) {
   const placeDetailsSection = document.getElementById('place-details');
 
-  // Stop if the section does not exist
+  // Stop if the current page does not contain #place-details
   if (!placeDetailsSection) {
     return;
   }
 
-  // Prepare amenity names as a readable string
+  // Clear previous content before displaying the current place
+  placeDetailsSection.innerHTML = '';
+
+  // Create one container for place information
+  const placeInfo = document.createElement('div');
+  placeInfo.className = 'place-info';
+
+  // Convert the amenities array into a readable text string
   const amenities = place.amenities.map((amenity) => amenity.name).join(', ');
 
-  // Build the detailed place layout dynamically
-  placeDetailsSection.innerHTML = `
-    <div class="place-info">
-      <h1>${place.title}</h1>
-      <p><strong>Host:</strong> ${place.owner ? `${place.owner.first_name} ${place.owner.last_name}` : 'Unknown'}</p>
-      <p><strong>Price per night:</strong> $${place.price}</p>
-      <p><strong>Description:</strong> ${place.description || ''}</p>
-      <p><strong>Amenities:</strong> ${amenities}</p>
-    </div>
+  // Fill the place details block with backend data
+  placeInfo.innerHTML = `
+    <h1>${place.title}</h1>
+    <p><strong>Host:</strong> ${place.owner ? `${place.owner.first_name} ${place.owner.last_name}` : 'Unknown'}</p>
+    <p><strong>Price per night:</strong> $${place.price}</p>
+    <p><strong>Description:</strong> ${place.description || ''}</p>
+    <p><strong>Amenities:</strong> ${amenities}</p>
   `;
+
+  // Add the place details block to the page
+  placeDetailsSection.appendChild(placeInfo);
 }
 
 /**
  * Display all reviews of the current place inside #reviews.
  *
- * @param {Array} reviews
+ * @param {Array} reviews - Array of reviews returned by the backend
  */
-function displayPlaceReviews(reviews) {
+function displayPlacesReviews(reviews) {
   const reviewsSection = document.getElementById('reviews');
 
-  // Stop if the section does not exist
+  // Stop if the current page does not contain #reviews
   if (!reviewsSection) {
     return;
   }
 
-  // Keep the Reviews title, then inject the review cards
+  // Keep the section title, then add the review cards
   reviewsSection.innerHTML = '<h2>Reviews</h2>';
 
   reviews.forEach((review) => {
     const reviewCard = document.createElement('article');
     reviewCard.className = 'review-card';
 
-    // Build one review card
+    // Use only fields that really exist in the backend review response
     reviewCard.innerHTML = `
       <p><strong>User:</strong> ${review.owner_id}</p>
       <p>${review.text}</p>
