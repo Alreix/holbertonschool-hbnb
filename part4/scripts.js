@@ -74,6 +74,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check authentication and update UI for this page
     checkAuthentication(placeId);
 
+    // Update the Add Review link with the current place ID
+    const addReviewLink = document.querySelector('#add-review a');
+    if (addReviewLink && placeId) {
+      addReviewLink.href = `add_review.html?id=${placeId}`;
+    }
+
     // Fetch reviews for the current place
     fetchPlacesReviews(placeId);
   }
@@ -448,6 +454,9 @@ function checkAuthenticationForReview () {
   // Redirect unauthenticated users to index.html
   if (!token) {
     window.location.href = 'index.html';
+  }
+  if (loginLink) {
+    loginLink.style.display = "none";
   }
 
   return token;
