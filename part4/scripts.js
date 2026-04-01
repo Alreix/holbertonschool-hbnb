@@ -516,13 +516,22 @@ function displayPlacesReviews (reviews) {
  */
 function checkAuthenticationForReview () {
   const token = getCookie('token');
+  const loginLink = document.getElementById('login-link');
+  const logoutBtn = document.getElementById('logout-btn');
 
   // Redirect unauthenticated users to index.html
   if (!token) {
     window.location.href = 'index.html';
   }
+  
+  // Hide login link if user is authenticated
   if (loginLink) {
     loginLink.style.display = "none";
+  }
+
+  // Show logout button if user is authenticated
+  if (logoutBtn) {
+    logoutBtn.style.display = "block";
   }
 
   return token;
@@ -565,7 +574,7 @@ async function submitReview (token, placeId, reviewText, rating, reviewForm) {
     });
 
     // Handle success or failure after submission
-    handleReviewResponse(response, reviewForm);
+    handleReviewResponse(response, reviewForm, placeId);
   } catch (error) {
     alert('An error occurred while submitting the review.');
     console.error(error);
@@ -577,18 +586,32 @@ async function submitReview (token, placeId, reviewText, rating, reviewForm) {
  * If the submission succeeds:
  * - show a success message
  * - reset the form
- * If it fails:
+ * - redirect to the place details page
+ * If it fails with 401 (unauthorized):
+ * - show an error message
+ * - redirect to login page
+ * If it fails with other errors:
  * - show an error message
  *
  * @param {Response} response - Fetch response object
  * @param {HTMLFormElement} reviewForm - The submitted review form
+ * @param {string} placeId - ID of the place being reviewed
  */
-function handleReviewResponse (response, reviewForm) {
+function handleReviewResponse (response, reviewForm, placeId) {
   if (response.ok) {
     alert('Review submitted successfully!');
 
     // Clear all fields in the form after success
     reviewForm.reset();
+
+    // Redirect to the place details page after a brief delay
+    setTimeout(() => {
+      window.location.href = `place.html?id=${placeId}`;
+    }, 500);
+  } else if (response.status === 401) {
+    alert('Your session has expired. Please login again.');
+    // Redirect to login page
+    window.location.href = 'login.html';
   } else {
     alert('Failed to submit review.');
   }
