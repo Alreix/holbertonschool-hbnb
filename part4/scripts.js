@@ -360,6 +360,28 @@ async function fetchPlaceDetails (token, placeId) {
  *
  * @param {string} placeId - ID of the place whose reviews must be fetched
  */
+/**
+ * Fetch user information by ID from the backend API.
+ *
+ * @param {string} userId - ID of the user to fetch
+ * @returns {Promise<Object|null>} User object with first_name and last_name, or null if not found
+ */
+async function getUserInfo (userId) {
+  const USER_URL = `http://127.0.0.1:5000/api/v1/users/${userId}`;
+
+  try {
+    const response = await fetch(USER_URL);
+
+    if (response.ok) {
+      return await response.json();
+    }
+  } catch (error) {
+    console.error(`Error fetching user ${userId}:`, error);
+  }
+
+  return null;
+}
+
 async function fetchPlacesReviews (placeId) {
   const REVIEWS_URL = `http://127.0.0.1:5000/api/v1/places/${placeId}/reviews`;
 
@@ -368,7 +390,19 @@ async function fetchPlacesReviews (placeId) {
 
     if (response.ok) {
       const reviews = await response.json();
-      displayPlacesReviews(reviews);
+
+      // Fetch user info for all reviews in parallel
+      const enrichedReviews = await Promise.all(
+        reviews.map(async (review) => {
+          const userInfo = await getUserInfo(review.owner_id);
+          return {
+            ...review,
+            owner: userInfo
+          };
+        })
+      );
+
+      displayPlacesReviews(enrichedReviews);
     }
   } catch (error) {
     console.error(error);
@@ -414,7 +448,7 @@ function displayPlacesDetails (place) {
 /**
  * Display all reviews of the current place inside #reviews.
  *
- * @param {Array} reviews - Array of reviews returned by the backend
+ * @param {Array} reviews - Array of reviews returned by the backend (enriched with owner info)
  */
 function displayPlacesReviews (reviews) {
   const reviewsSection = document.getElementById('reviews');
@@ -431,9 +465,13 @@ function displayPlacesReviews (reviews) {
     const reviewCard = document.createElement('article');
     reviewCard.className = 'review-card';
 
-    // Use only fields that really exist in the backend review response
+    // Display user name if available, otherwise fall back to owner_id
+    const userName = review.owner && review.owner.first_name && review.owner.last_name
+      ? `${review.owner.first_name} ${review.owner.last_name}`
+      : `User ${review.owner_id}`;
+
     reviewCard.innerHTML = `
-      <p><strong>User:</strong> ${review.owner_id}</p>
+      <p><strong>User:</strong> ${userName}</p>
       <p>${review.text}</p>
       <p><strong>Rating:</strong> ${review.rating}</p>
     `;
