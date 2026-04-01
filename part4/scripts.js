@@ -22,6 +22,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const priceFilter = document.getElementById('price-filter');
   const placeDetailsSection = document.getElementById('place-details');
   const reviewForm = document.getElementById('review-form');
+  const logoutBtn = document.getElementById('logout-btn');
+
+  // Setup logout button listener (available on all pages)
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', logoutUser);
+  }
 
   /**
    * LOGIN PAGE LOGIC
@@ -158,6 +164,18 @@ async function loginUser (email, password) {
 }
 
 /**
+ * Logout the current user by removing the JWT token cookie.
+ * This function clears the token and redirects to index.html.
+ */
+function logoutUser () {
+  // Remove the token cookie by setting it to an empty string with an expired date
+  document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+
+  // Redirect to index.html after logout
+  window.location.href = 'index.html';
+}
+
+/**
  * Read a cookie value by its name.
  * This is used to get the JWT token stored after login.
  *
@@ -195,6 +213,7 @@ function getCookie (name) {
 function checkAuthentication (placeId = null) {
   const token = getCookie('token');
   const loginLink = document.getElementById('login-link');
+  const logoutBtn = document.getElementById('logout-btn');
   const addReviewSection = document.getElementById('add-review');
 
   // Update Login link visibility only if the element exists on the page
@@ -203,6 +222,15 @@ function checkAuthentication (placeId = null) {
       loginLink.style.display = 'block';
     } else {
       loginLink.style.display = 'none';
+    }
+  }
+
+  // Update Logout button visibility only if the element exists on the page
+  if (logoutBtn) {
+    if (!token) {
+      logoutBtn.style.display = 'none';
+    } else {
+      logoutBtn.style.display = 'block';
     }
   }
 
