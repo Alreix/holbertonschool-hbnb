@@ -31,10 +31,10 @@ HBnB Application
 
 ```text
 holbertonschool-hbnb/
-├── part1/                                      # Phase 1 - Design and modeling
+├── part1/                                    # Phase 1 - Design and modeling
 │   └── TECHNICAL_DOCUMENTATION.md            # Technical documentation with UML diagrams
-├── part2/                                      # Phase 2 - Implementation with in-memory storage
-│   ├── app/                                   # Application package
+├── part2/                                    # Phase 2 - Implementation with in-memory storage
+│   ├── app/                                  # Application package
 │   │   ├── api/v1/                           # REST API endpoints
 │   │   ├── models/                           # Data models
 │   │   ├── services/                         # Business logic (Facade)
@@ -44,8 +44,8 @@ holbertonschool-hbnb/
 │   ├── run.py                                # Application entry point
 │   ├── requirements.txt                      # Python dependencies
 │   └── README.md                             # Part 2 documentation
-├── part3/                                      # Phase 3 - Database and Authentication
-│   ├── app/                                   # Application package
+├── part3/                                    # Phase 3 - Database and Authentication
+│   ├── app/                                  # Application package
 │   │   ├── api/v1/                           # REST API endpoints with auth
 │   │   ├── models/                           # SQLAlchemy models
 │   │   ├── services/                         # Business logic (Facade)
@@ -56,7 +56,7 @@ holbertonschool-hbnb/
 │   ├── run.py                                # Application entry point
 │   ├── requirements.txt                      # Python dependencies
 │   └── README.md                             # Part 3 documentation
-└── part4/                                      # Phase 4 - Frontend Integration
+└── part4/                                    # Phase 4 - Frontend Integration
     ├── add_review.html                       # Review submission page
     ├── index.html                            # Home page with places list
     ├── login.html                            # Login page
