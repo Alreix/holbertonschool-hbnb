@@ -6,6 +6,7 @@ from flask_restx import Api
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 
 bcrypt = Bcrypt()
 jwt = JWTManager()
@@ -47,6 +48,9 @@ def create_app(config_class="config.DevelopmentConfig"):
     api.add_namespace(amenities_ns, path="/api/v1/amenities")
     api.add_namespace(reviews_ns, path="/api/v1/reviews")
     api.add_namespace(auth_ns, path="/api/v1/auth")
+
+    # Enable all routes with CORS (from flask)
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
 
     bcrypt.init_app(app)
     jwt.init_app(app)
