@@ -19,7 +19,7 @@ Development of a complete web application following best practices:
 
 Layered architecture implementation:
 
-```
+```text
 HBnB Application
 ├── Presentation Layer (REST API with Flask-RESTX)
 ├── Business Logic Layer (Models and Facade)
@@ -28,7 +28,8 @@ HBnB Application
 ```
 
 ## Project Structure
-```
+
+```text
 holbertonschool-hbnb/
 ├── part1/                                      # Phase 1 - Design and modeling
 │   └── TECHNICAL_DOCUMENTATION.md            # Technical documentation with UML diagrams
