@@ -19,49 +19,52 @@ Development of a complete web application following best practices:
 
 Layered architecture implementation:
 
-- HBnB Application
-  - Presentation Layer (REST API with Flask-RESTX)
-  - Business Logic Layer (Models and Facade)
-  - Persistence Layer (Repository Pattern)
-  - Database Layer (SQLAlchemy with SQLite)
+```
+HBnB Application
+├── Presentation Layer (REST API with Flask-RESTX)
+├── Business Logic Layer (Models and Facade)
+├── Persistence Layer (Repository Pattern)
+└── Database Layer (SQLAlchemy with SQLite)
+```
 
 ## Project Structure
-
-- holbertonschool-hbnb/
-  - part1/ (Phase 1 - Design and modeling)
-    - TECHNICAL_DOCUMENTATION.md (Technical documentation with UML diagrams)
-  - part2/ (Phase 2 - Implementation with in-memory storage)
-    - app/
-      - api/v1/ (REST API endpoints)
-      - models/ (Data models)
-      - services/ (Business logic - Facade)
-      - persistence/ (In-memory persistence layer)
-    - tests/ (Test suite)
-    - config.py (Application configuration)
-    - run.py (Application entry point)
-    - requirements.txt (Python dependencies)
-    - README.md (Part 2 documentation)
-  - part3/ (Phase 3 - Database and Authentication)
-    - app/
-      - api/v1/ (REST API endpoints with auth)
-      - models/ (SQLAlchemy models)
-      - services/ (Business logic - Facade)
-      - persistence/ (SQLAlchemy repository)
-    - instance/sql/ (SQL schema files)
-    - tests/ (Test suite)
-    - config.py (Application configuration)
-    - run.py (Application entry point)
-    - requirements.txt (Python dependencies)
-    - README.md (Part 3 documentation)
-  - part4/ (Phase 4 - Frontend Integration)
-    - add_review.html (Review submission page)
-    - index.html (Home page with places list)
-    - login.html (Login page)
-    - place.html (Place details page)
-    - scripts.js (Main JavaScript with API calls)
-    - styles.css (Application styles)
-    - images/ (Images, logo, favicon)
-    - README.md (Part 4 documentation)
+```
+holbertonschool-hbnb/
+├── part1/                                      # Phase 1 - Design and modeling
+│   └── TECHNICAL_DOCUMENTATION.md            # Technical documentation with UML diagrams
+├── part2/                                      # Phase 2 - Implementation with in-memory storage
+│   ├── app/                                   # Application package
+│   │   ├── api/v1/                           # REST API endpoints
+│   │   ├── models/                           # Data models
+│   │   ├── services/                         # Business logic (Facade)
+│   │   └── persistence/                      # In-memory persistence layer
+│   ├── tests/                                # Test suite
+│   ├── config.py                             # Application configuration
+│   ├── run.py                                # Application entry point
+│   ├── requirements.txt                      # Python dependencies
+│   └── README.md                             # Part 2 documentation
+├── part3/                                      # Phase 3 - Database and Authentication
+│   ├── app/                                   # Application package
+│   │   ├── api/v1/                           # REST API endpoints with auth
+│   │   ├── models/                           # SQLAlchemy models
+│   │   ├── services/                         # Business logic (Facade)
+│   │   └── persistence/                      # SQLAlchemy repository
+│   ├── instance/sql/                         # SQL schema files
+│   ├── tests/                                # Test suite
+│   ├── config.py                             # Application configuration
+│   ├── run.py                                # Application entry point
+│   ├── requirements.txt                      # Python dependencies
+│   └── README.md                             # Part 3 documentation
+└── part4/                                      # Phase 4 - Frontend Integration
+    ├── add_review.html                       # Review submission page
+    ├── index.html                            # Home page with places list
+    ├── login.html                            # Login page
+    ├── place.html                            # Place details page
+    ├── scripts.js                            # Main JavaScript with API calls
+    ├── styles.css                            # Application styles
+    ├── images/                               # Images (logo, favicon)
+    └── README.md                             # Part 4 documentation
+```
 
 ## Implemented Features
 
