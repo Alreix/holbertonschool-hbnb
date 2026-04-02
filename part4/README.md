@@ -237,49 +237,6 @@ The frontend communicates with the following backend endpoints:
 5. Token automatically included in subsequent API requests
 6. Token validation checked on page load via `checkAuthentication()`
 
-### Data Fetching Strategy
-
-The frontend uses the Fetch API with async/await pattern:
-
-```javascript
-async function fetchData(url) {
-  try {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error('API request failed');
-    return await response.json();
-  } catch (error) {
-    console.error('Fetch error:', error);
-  }
-}
-```
-
-### Asynchronous User Data Enrichment
-
-Reviews display full user names instead of IDs through parallel data fetching:
-
-```javascript
-const enrichedReviews = await Promise.all(
-  reviews.map(async (review) => {
-    const user = await getUserInfo(review.owner_id);
-    return { ...review, userName: user.first_name + ' ' + user.last_name };
-  })
-);
-```
-
-### Client-Side Filtering
-
-Price filtering operates on cached DOM elements without page reload:
-
-```javascript
-function filterPlacesByPrice(maxPrice) {
-  document.querySelectorAll('.place-card').forEach(card => {
-    const price = parseFloat(card.getAttribute('data-price'));
-    card.style.display = (maxPrice === 'all' || price <= maxPrice) ? 'block' : 'none';
-  });
-}
-```
-
-
 ## Authentication
 
 ### Security Considerations
