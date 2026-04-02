@@ -1,4 +1,4 @@
-HBNB - Simple Web Client
+# HBNB - Simple Web Client
 
 ## Table of Contents
 
