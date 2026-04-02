@@ -54,23 +54,13 @@ holbertonschool-hbnb/
 │   ├── requirements.txt                      # Python dependencies
 │   └── README.md                             # Part 3 documentation
 └── part4/                                      # Phase 4 - Frontend Integration
-    ├── app/                                   # Backend application package
-    │   ├── api/v1/                           # REST API endpoints with CORS
-    │   ├── models/                           # SQLAlchemy models
-    │   ├── services/                         # Business logic (Facade)
-    │   └── persistence/                      # SQLAlchemy repository
-    ├── instance/sql/                         # SQL schema files
-    ├── tests/                                # Test suite
-    ├── config.py                             # Application configuration
-    ├── run.py                                # Application entry point
-    ├── requirements.txt                      # Python dependencies
+    ├── add_review.html                       # Review submission page
     ├── index.html                            # Home page with places list
     ├── login.html                            # Login page
     ├── place.html                            # Place details page
-    ├── add_review.html                       # Review submission page
     ├── scripts.js                            # Main JavaScript with API calls
     ├── styles.css                            # Application styles
-    ├── frontend/images/                      # Images
+    ├── images/                               # Images (logo, favicon)
     └── README.md                             # Part 4 documentation
 
 ## Implemented Features
@@ -248,14 +238,13 @@ Each part has detailed README files with setup instructions and documentation.
 
 ### Running Part 4 (Frontend + Backend)
 ```bash
-# Navigate to part4 directory
-cd part4
-
-# Start backend API
+# Backend (if not started): go to part3 and run API
+cd part3
 python3 run.py
 # Backend runs on http://localhost:5000
 
-# Start frontend (in another terminal)
+# Frontend (in separate terminal)
+cd ../part4
 python3 -m http.server 8000
 # Frontend runs on http://localhost:8000
 ```
