@@ -523,15 +523,15 @@ function checkAuthenticationForReview () {
   if (!token) {
     window.location.href = 'index.html';
   }
-  
+
   // Hide login link if user is authenticated
   if (loginLink) {
-    loginLink.style.display = "none";
+    loginLink.style.display = 'none';
   }
 
   // Show logout button if user is authenticated
   if (logoutBtn) {
-    logoutBtn.style.display = "block";
+    logoutBtn.style.display = 'block';
   }
 
   return token;
